@@ -1,0 +1,6 @@
+* text=auto eol=lf
+
+# Prefer union merges for documentation and static section modules to reduce manual conflict resolution.
+*.md merge=union
+web-app/assets/js/components/*.js merge=union
+web-app/assets/styles/*.css merge=union
