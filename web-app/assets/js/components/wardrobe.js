@@ -1,3 +1,5 @@
+import { saveWardrobe } from "../state.js";
+
 const CATEGORIES = ["All Pieces", "Tops", "Bottoms", "Statement", "Outerwear", "Footwear", "Accessories"];
 const ITEM_CATEGORIES = CATEGORIES.slice(1); // excludes "All Pieces"
 
@@ -254,6 +256,7 @@ export function initWardrobe(state) {
     };
     if (!entry.name || !entry.color || !entry.category) return;
     state.wardrobe.unshift(entry);
+    saveWardrobe(state.wardrobe);
     resetAddForm();
     renderGrid();
   });
@@ -371,6 +374,7 @@ export function initWardrobe(state) {
       photo:       editPendingPhoto !== null ? editPendingPhoto : existing.photo
     };
 
+    saveWardrobe(state.wardrobe);
     closeEditModal();
     renderGrid();
   });

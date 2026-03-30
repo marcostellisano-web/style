@@ -1,29 +1,51 @@
 const createId = () =>
   globalThis.crypto?.randomUUID?.() ?? `id-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
+const STORAGE_KEY = "forma_wardrobe";
+
+const DEFAULT_WARDROBE = [
+  {
+    id: createId(), name: "Navy Slim Chinos", color: "Navy", brand: "H&M",
+    category: "Bottoms", rating: 8, photo: "",
+    description: "A reliable everyday bottom. The slim cut works with most tops and keeps the silhouette clean without effort."
+  },
+  {
+    id: createId(), name: "White Oxford Shirt", color: "White", brand: "Uniqlo",
+    category: "Tops", rating: 8.5, photo: "",
+    description: "The foundational layer. Keep it slightly open at the collar and half-tucked for an effortless editorial look."
+  },
+  {
+    id: createId(), name: "Grey Merino Knit", color: "Grey", brand: "COS",
+    category: "Tops", rating: 9, photo: "",
+    description: "Elevated basics at their best. The fine gauge merino reads luxurious while staying incredibly versatile across all seasons."
+  },
+  {
+    id: createId(), name: "Black Derby Shoes", color: "Black", brand: "Clarks",
+    category: "Footwear", rating: 8, photo: "",
+    description: "The most versatile formal shoe you can own. Pairs equally well with tailoring or with a relaxed jean for contrast."
+  }
+];
+
+function loadWardrobe() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) return JSON.parse(saved);
+  } catch {
+    // corrupted storage — fall through to defaults
+  }
+  return DEFAULT_WARDROBE;
+}
+
+export function saveWardrobe(wardrobe) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(wardrobe));
+  } catch {
+    // storage full or unavailable — silently skip
+  }
+}
+
 export const state = {
-  wardrobe: [
-    {
-      id: createId(), name: "Navy Slim Chinos", color: "Navy", brand: "H&M",
-      category: "Bottoms", rating: 8, photo: "",
-      description: "A reliable everyday bottom. The slim cut works with most tops and keeps the silhouette clean without effort."
-    },
-    {
-      id: createId(), name: "White Oxford Shirt", color: "White", brand: "Uniqlo",
-      category: "Tops", rating: 8.5, photo: "",
-      description: "The foundational layer. Keep it slightly open at the collar and half-tucked for an effortless editorial look."
-    },
-    {
-      id: createId(), name: "Grey Merino Knit", color: "Grey", brand: "COS",
-      category: "Tops", rating: 9, photo: "",
-      description: "Elevated basics at their best. The fine gauge merino reads luxurious while staying incredibly versatile across all seasons."
-    },
-    {
-      id: createId(), name: "Black Derby Shoes", color: "Black", brand: "Clarks",
-      category: "Footwear", rating: 8, photo: "",
-      description: "The most versatile formal shoe you can own. Pairs equally well with tailoring or with a relaxed jean for contrast."
-    }
-  ],
+  wardrobe: loadWardrobe(),
   generated: [],
   savedLooks: [],
   shoppingList: [],
