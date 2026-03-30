@@ -1,10 +1,11 @@
 export function renderStyleBoards() {
   return `
-    <section class="section feature-section" id="style-boards" aria-labelledby="style-boards-title">
-      <div class="container">
-        <h2 id="style-boards-title">Style Boards</h2>
-        <p>Organize inspiration and planned looks by theme, season, or event.</p>
+    <section class="app-section" id="style-boards">
+      <div class="section-head">
+        <h2>Most-Worn Pieces Tracker</h2>
+        <p>Automatically updates as you save outfit looks.</p>
       </div>
+      <div id="most-worn" class="most-worn"></div>
     </section>
   `;
 }
