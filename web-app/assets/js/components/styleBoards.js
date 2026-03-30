@@ -1,6 +1,6 @@
 export function renderStyleBoards() {
   return `
-    <section class="app-section" id="style-boards">
+    <section class="tab-panel app-section" id="style-boards">
       <div class="section-head">
         <h2>Style Boards</h2>
         <p>Create themed mood boards (like Pinterest) with images to guide outfit direction and future buys.</p>
