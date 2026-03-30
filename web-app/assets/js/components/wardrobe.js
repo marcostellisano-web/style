@@ -1,3 +1,5 @@
+import { saveWardrobe } from "../state.js";
+
 const CATEGORIES = ["All Pieces", "Tops", "Bottoms", "Statement", "Outerwear", "Footwear", "Accessories"];
 const ITEM_CATEGORIES = CATEGORIES.slice(1); // excludes "All Pieces"
 
@@ -113,6 +115,10 @@ export function renderWardrobe() {
                 <span class="edit-photo-filename" id="edit-photo-filename">No photo</span>
                 <label for="edit-photo-file" class="edit-change-btn">CHANGE</label>
                 <input type="file" id="edit-photo-file" accept="image/*" class="visually-hidden" />
+              </div>
+              <div class="edit-photo-folder-row">
+                <span class="edit-folder-label">Or filename from wardrobe-photos/</span>
+                <input type="text" id="edit-photo-filename-input" placeholder="e.g. navy-chinos.jpg" spellcheck="false" />
               </div>
             </div>
           </div>
@@ -250,6 +256,7 @@ export function initWardrobe(state) {
     };
     if (!entry.name || !entry.color || !entry.category) return;
     state.wardrobe.unshift(entry);
+    saveWardrobe(state.wardrobe);
     resetAddForm();
     renderGrid();
   });
@@ -258,9 +265,10 @@ export function initWardrobe(state) {
   const overlay      = document.querySelector("#edit-overlay");
   const editForm     = document.querySelector("#edit-form");
   const editCancel   = document.querySelector("#edit-cancel");
-  const editPhotoIn  = document.querySelector("#edit-photo-file");
-  const editPhotoEl  = document.querySelector("#edit-photo-preview");
-  const editFilename = document.querySelector("#edit-photo-filename");
+  const editPhotoIn       = document.querySelector("#edit-photo-file");
+  const editPhotoEl       = document.querySelector("#edit-photo-preview");
+  const editFilename      = document.querySelector("#edit-photo-filename");
+  const editFolderInput   = document.querySelector("#edit-photo-filename-input");
   const editSwatch   = document.querySelector("#edit-colour-swatch");
   const editColorPkr = document.querySelector("#edit-color-picker");
   const editColorName= document.querySelector("#edit-color-name");
@@ -269,6 +277,7 @@ export function initWardrobe(state) {
 
   function openEditModal(item) {
     editPendingPhoto = null;
+    editFolderInput.value = "";
     document.querySelector("#edit-id").value = item.id;
     document.querySelector("#edit-name").value = item.name;
     document.querySelector("#edit-category").value = item.category;
@@ -328,10 +337,21 @@ export function initWardrobe(state) {
     const reader = new FileReader();
     reader.onload = e => {
       editPendingPhoto = e.target.result;
+      editFolderInput.value = "";
       editPhotoEl.innerHTML = `<img src="${editPendingPhoto}" alt="Preview" />`;
       editFilename.textContent = file.name;
     };
     reader.readAsDataURL(file);
+  });
+
+  // Preview photo from wardrobe-photos/ folder as user types
+  editFolderInput.addEventListener("input", () => {
+    const filename = editFolderInput.value.trim();
+    if (!filename) return;
+    const url = `/wardrobe-photos/${filename}`;
+    editPendingPhoto = url;
+    editPhotoEl.innerHTML = `<img src="${url}" alt="Preview" onerror="this.style.opacity='.3'" />`;
+    editFilename.textContent = filename;
   });
 
   editForm.addEventListener("submit", e => {
@@ -354,6 +374,7 @@ export function initWardrobe(state) {
       photo:       editPendingPhoto !== null ? editPendingPhoto : existing.photo
     };
 
+    saveWardrobe(state.wardrobe);
     closeEditModal();
     renderGrid();
   });
