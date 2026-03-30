@@ -77,18 +77,60 @@ button { background: #13151b; color: #fff; border-color: #13151b; cursor: pointe
 .outfit-item small { display: block; margin-top: 5px; font-size: 11px; color: var(--muted); }
 .upgrade { font-size: 13px; color: #5f594f; }
 
-.saved-looks-list, .shopping-list-items, .most-worn { display: grid; gap: 10px; }
-.saved-look, .shop-row, .worn-row { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; background: #f9f7f4; }
+
+.style-board-form {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 1.8fr auto;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.style-boards-grid {
+  columns: 3 260px;
+  column-gap: 14px;
+}
+
+.board-card {
+  break-inside: avoid;
+  margin-bottom: 14px;
+  background: #f9f7f4;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.board-card img {
+  width: 100%;
+  display: block;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+}
+
+.board-meta {
+  padding: 10px 12px 12px;
+}
+
+.board-meta h3 {
+  margin: 0;
+  font-family: "Cormorant Garamond", serif;
+  font-size: 28px;
+}
+
+.board-meta p {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.saved-looks-list, .shopping-list-items { display: grid; gap: 10px; }
+.saved-look, .shop-row { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; background: #f9f7f4; }
 .shop-row { display: grid; grid-template-columns: 2fr 1fr auto; gap: 8px; }
 #shopping-export { width: 100%; min-height: 120px; margin-top: 12px; }
-.worn-row { display: grid; grid-template-columns: 1.4fr 2fr auto; align-items: center; gap: 12px; }
-.meter { height: 10px; border-radius: 999px; background: #e1ddd5; overflow: hidden; }
-.meter i { display: block; height: 100%; background: #22262d; }
 .empty-state { color: var(--muted); }
 .site-footer { padding: 18px 0 36px; color: var(--muted); font-size: 13px; }
 
 @media (max-width: 1100px) {
-  .item-form { grid-template-columns: 1fr 1fr; }
+  .item-form, .style-board-form { grid-template-columns: 1fr 1fr; }
   .wardrobe-grid { grid-template-columns: repeat(2, minmax(180px, 1fr)); }
   .outfit-results { grid-template-columns: 1fr; }
 }

@@ -1,7 +1,7 @@
 import { renderHeader } from "./components/header.js";
 import { renderWardrobe } from "./components/wardrobe.js";
 import { renderGenerate } from "./components/generate.js";
-import { renderStyleBoards } from "./components/styleBoards.js";
+import { renderStyleBoards as renderStyleBoardsSection } from "./components/styleBoards.js";
 import { renderSavedLooks } from "./components/savedLooks.js";
 import { renderShoppingList } from "./components/shoppingList.js";
 import { renderFooter } from "./components/footer.js";
@@ -15,7 +15,7 @@ app.innerHTML = `
   <main id="main-content" class="app-main">
     ${renderWardrobe()}
     ${renderGenerate()}
-    ${renderStyleBoards()}
+    ${renderStyleBoardsSection()}
     ${renderSavedLooks()}
     ${renderShoppingList()}
   </main>
@@ -33,7 +33,11 @@ const state = {
   ],
   generated: [],
   savedLooks: [],
-  shoppingList: []
+  shoppingList: [],
+  styleBoards: [
+    { id: createId(), title: "Quiet Luxury", theme: "neutral layers", image: "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=900&q=80" },
+    { id: createId(), title: "Weekend Minimal", theme: "denim, knitwear", image: "https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=900&q=80" }
+  ]
 };
 
 const form = document.querySelector("#item-form");
@@ -43,7 +47,8 @@ const outfitResults = document.querySelector("#outfit-results");
 const savedLooksList = document.querySelector("#saved-looks-list");
 const shoppingListEl = document.querySelector("#shopping-list-items");
 const shoppingExport = document.querySelector("#shopping-export");
-const mostWornEl = document.querySelector("#most-worn");
+const styleBoardForm = document.querySelector("#style-board-form");
+const styleBoardsGrid = document.querySelector("#style-boards-grid");
 
 function silhouetteOrImage(item) {
   if (item.photo) {
@@ -157,17 +162,36 @@ function refreshShoppingList() {
   shoppingExport.value = state.shoppingList.map((s) => `${s.item} — ${s.store} — ${s.price}`).join("\n");
 }
 
-function renderMostWorn() {
-  const counts = new Map();
-  state.savedLooks.forEach((look) => look.items.forEach((item) => counts.set(item.name, (counts.get(item.name) || 0) + 1)));
-  const ranked = [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8);
-
-  mostWornEl.innerHTML = ranked.length
-    ? ranked
-        .map(([name, count]) => `<div class="worn-row"><span>${name}</span><div class="meter"><i style="width:${Math.min(100, count * 20)}%"></i></div><small>${count} saves</small></div>`)
-        .join("")
-    : "<p class='empty-state'>Save looks to populate wear data.</p>";
+function renderStyleBoards() {
+  styleBoardsGrid.innerHTML = state.styleBoards
+    .map((board) => `
+      <article class="board-card">
+        <img src="${board.image}" alt="${board.title}" loading="lazy" />
+        <div class="board-meta">
+          <h3>${board.title}</h3>
+          <p>${board.theme || "No theme tags yet"}</p>
+        </div>
+      </article>
+    `)
+    .join("");
 }
+
+styleBoardForm?.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const data = new FormData(styleBoardForm);
+  const board = {
+    id: createId(),
+    title: String(data.get("title") || "").trim(),
+    theme: String(data.get("theme") || "").trim(),
+    image: String(data.get("image") || "").trim()
+  };
+
+  if (!board.title || !board.image) return;
+
+  state.styleBoards.unshift(board);
+  styleBoardForm.reset();
+  renderStyleBoards();
+});
 
 form?.addEventListener("submit", (event) => {
   event.preventDefault();
@@ -203,10 +227,9 @@ outfitResults?.addEventListener("click", (event) => {
   state.savedLooks.unshift(match);
   renderSavedLooks();
   refreshShoppingList();
-  renderMostWorn();
 });
 
 renderWardrobeGrid();
 renderSavedLooks();
 refreshShoppingList();
-renderMostWorn();
+renderStyleBoards();
