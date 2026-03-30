@@ -607,6 +607,32 @@ select { cursor: pointer; }
 
 .edit-change-btn:hover { color: var(--ink); }
 
+.edit-photo-folder-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #faf8f5;
+  border-top: 1px solid var(--line);
+  font-size: 12px;
+}
+
+.edit-folder-label {
+  color: var(--muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.edit-photo-folder-row input {
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 5px;
+  border: 1px solid var(--line);
+  background: #fff;
+  width: 100%;
+  min-width: 0;
+}
+
 /* Edit actions */
 .edit-actions {
   display: flex;
