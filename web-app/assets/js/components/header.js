@@ -1,22 +1,24 @@
 const navItems = [
-  { href: "#wardrobe", label: "Wardrobe", active: true },
-  { href: "#generate", label: "Generate" },
-  { href: "#style-boards", label: "Most Worn" },
-  { href: "#saved-looks", label: "Saved Looks" },
-  { href: "#shopping-list", label: "Shopping List", outlined: true }
+  { id: "wardrobe", label: "Wardrobe" },
+  { id: "generate", label: "Generate" },
+  { id: "style-boards", label: "Style Boards" },
+  { id: "saved-looks", label: "Saved Looks" },
+  { id: "shopping-list", label: "Shopping List" },
 ];
 
 export function renderHeader() {
-  const links = navItems.map((item, index) => {
-    const active = index === 0 ? "is-active" : "";
-    return `<a class="top-nav-link ${active}" href="${item.href}">${item.label}</a>`;
-  });
+  const links = navItems
+    .map((item, i) =>
+      `<button class="top-nav-btn${i === 0 ? " is-active" : ""}" data-tab="${item.id}">${item.label.toUpperCase()}</button>`
+    )
+    .join("");
 
   return `
     <header class="site-header">
       <div class="header-inner">
-        <div class="brand">FORMA</div>
-        <nav class="top-nav" aria-label="Primary">${links.join("")}</nav>
+        <div class="brand">FOR<span class="brand-accent">M</span>A</div>
+        <nav class="top-nav" aria-label="Primary">${links}</nav>
+        <div class="status-dot" aria-hidden="true"></div>
       </div>
     </header>
   `;
