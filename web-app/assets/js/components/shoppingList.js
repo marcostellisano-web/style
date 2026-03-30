@@ -1,10 +1,12 @@
 export function renderShoppingList() {
   return `
-    <section class="section feature-section" id="shopping-list" aria-labelledby="shopping-list-title">
-      <div class="container">
-        <h2 id="shopping-list-title">Shopping List</h2>
-        <p>Track missing pieces, priority buys, and links to complete future outfits.</p>
+    <section class="app-section" id="shopping-list">
+      <div class="section-head">
+        <h2>Shopping List</h2>
+        <p>Upgrade suggestions collected from generated outfits. Export-ready plain list included.</p>
       </div>
+      <div id="shopping-list-items" class="shopping-list-items"></div>
+      <textarea id="shopping-export" readonly placeholder="Your export list will appear here"></textarea>
     </section>
   `;
 }
