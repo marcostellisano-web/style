@@ -382,9 +382,30 @@ export function initWardrobe(state) {
   // ── Grid ─────────────────────────────────────────────────────────
   grid.addEventListener("click", e => {
     const btn = e.target.closest(".card-edit-btn");
-    if (!btn) return;
-    const item = state.wardrobe.find(i => i.id === btn.dataset.id);
-    if (item) openEditModal(item);
+    if (btn) {
+      const item = state.wardrobe.find(i => i.id === btn.dataset.id);
+      if (item) openEditModal(item);
+      return;
+    }
+
+    // Tap-to-reveal on touch devices
+    if (!window.matchMedia("(hover: none)").matches) return;
+    const card = e.target.closest(".wardrobe-card");
+    if (!card) {
+      grid.querySelectorAll(".wardrobe-card.is-active").forEach(c => c.classList.remove("is-active"));
+      return;
+    }
+    const isActive = card.classList.contains("is-active");
+    grid.querySelectorAll(".wardrobe-card.is-active").forEach(c => c.classList.remove("is-active"));
+    if (!isActive) card.classList.add("is-active");
+  });
+
+  // Dismiss overlay when tapping outside the grid
+  document.addEventListener("click", e => {
+    if (!window.matchMedia("(hover: none)").matches) return;
+    if (!e.target.closest("#wardrobe-grid")) {
+      grid.querySelectorAll(".wardrobe-card.is-active").forEach(c => c.classList.remove("is-active"));
+    }
   });
 
   function renderGrid() {

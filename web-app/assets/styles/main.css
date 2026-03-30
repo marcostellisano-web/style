@@ -333,12 +333,8 @@ select { cursor: pointer; }
   pointer-events: none;
 }
 
-.wardrobe-card:hover .wardrobe-meta { opacity: 1; }
-
-/* Always show on touch devices */
-@media (hover: none) {
-  .wardrobe-meta { opacity: 1; }
-}
+.wardrobe-card:hover .wardrobe-meta,
+.wardrobe-card.is-active .wardrobe-meta { opacity: 1; }
 
 .item-name {
   margin: 0 0 6px;
@@ -652,12 +648,8 @@ select { cursor: pointer; }
   pointer-events: auto;
 }
 
-.wardrobe-card:hover .card-edit-btn { opacity: 1; }
-
-/* Always show on touch devices */
-@media (hover: none) {
-  .card-edit-btn { opacity: 1; }
-}
+.wardrobe-card:hover .card-edit-btn,
+.wardrobe-card.is-active .card-edit-btn { opacity: 1; }
 
 /* ── Colour input ───────────────────────────────────────────────── */
 .colour-input-wrap {
