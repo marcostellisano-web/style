@@ -30,6 +30,10 @@ function parseImageList(raw) {
     .filter(Boolean);
 }
 
+function isStyleBoardFolderPath(value) {
+  return /^\/style-board-photos\/.+/i.test(value);
+}
+
 function deriveKeywords(images) {
   const frequency = new Map();
   images.forEach(url => {
@@ -97,14 +101,15 @@ export function renderStyleBoards() {
         <div>
           <p class="style-boards-kicker">Inspiration</p>
           <h2>Style <em>Boards</em></h2>
-          <p class="style-boards-subhead">Paste image URLs and keywords. AI-generated board tags and titles can be edited anytime.</p>
+          <p class="style-boards-subhead">Add image paths from <code>/style-board-photos/</code>. AI-generated board tags and titles can be edited anytime.</p>
         </div>
         <button type="button" class="new-board-btn" id="style-board-toggle">+ New Board</button>
       </div>
 
       <form id="style-board-form" class="style-board-form hidden" autocomplete="off">
         <input name="title" placeholder="Optional custom title" />
-        <textarea name="images" placeholder="Paste image URLs (one per line)" required></textarea>
+        <textarea name="images" placeholder="Use one path per line (e.g. /style-board-photos/look-1.jpg)" required></textarea>
+        <p class="style-board-form-note">Only images from <code>/style-board-photos/</code> are allowed for boards.</p>
         <div class="style-board-form-actions">
           <button type="button" id="style-board-cancel">Cancel</button>
           <button type="submit">Create board</button>
@@ -161,6 +166,7 @@ export function initStyleBoards(state) {
           <form class="board-edit-form hidden" data-edit-form>
             <input name="title" value="${escapeHtml(board.title)}" placeholder="Board title" required />
             <textarea name="images" required>${escapeHtml(board.images.join("\n"))}</textarea>
+            <p class="style-board-form-note">Only use paths from <code>/style-board-photos/</code>.</p>
             <div class="board-edit-actions">
               <button type="button" data-action="cancel-edit">Cancel</button>
               <button type="submit">Save</button>
@@ -186,6 +192,10 @@ export function initStyleBoards(state) {
     const data = new FormData(form);
     const images = parseImageList(data.get("images"));
     if (!images.length) return;
+    if (images.some(path => !isStyleBoardFolderPath(path))) {
+      globalThis.alert?.("Please use only image paths from /style-board-photos/.");
+      return;
+    }
 
     const board = buildBoard({
       title: String(data.get("title") || "").trim(),
@@ -239,6 +249,10 @@ export function initStyleBoards(state) {
     const data = new FormData(formElement);
     const images = parseImageList(data.get("images"));
     if (!images.length) return;
+    if (images.some(path => !isStyleBoardFolderPath(path))) {
+      globalThis.alert?.("Please use only image paths from /style-board-photos/.");
+      return;
+    }
 
     const board = state.styleBoards.find(item => item.id === boardId);
     if (!board) return;

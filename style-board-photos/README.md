@@ -1,6 +1,7 @@
 # Style board images
 
 Upload or add image files to this folder to use them inside **Style Boards**.
+Boards are restricted to this folder only.
 
 Use URLs like:
 

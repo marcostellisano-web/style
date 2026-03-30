@@ -474,6 +474,17 @@ select { cursor: pointer; }
 }
 
 .style-board-form textarea { min-height: 92px; resize: vertical; }
+.style-board-form-note {
+  margin: -2px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+.style-board-form-note code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  background: #ece8e2;
+  border-radius: 4px;
+  padding: 1px 5px;
+}
 
 .style-board-form-actions { display: flex; justify-content: flex-end; gap: 8px; }
 
