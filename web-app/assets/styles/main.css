@@ -438,6 +438,211 @@ select { cursor: pointer; }
 
 .site-footer { padding: 16px 0 32px; color: var(--muted); font-size: 12px; }
 
+/* ── Card edit button ───────────────────────────────────────────── */
+.wardrobe-photo { position: relative; }
+
+.card-edit-btn {
+  position: absolute;
+  top: 8px; right: 8px;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.88);
+  border: 1px solid rgba(0,0,0,.1);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity .15s;
+  padding: 0;
+  color: var(--ink);
+}
+
+.wardrobe-card:hover .card-edit-btn { opacity: 1; }
+
+/* Always show on touch devices */
+@media (hover: none) {
+  .card-edit-btn { opacity: 1; }
+}
+
+/* ── Colour input ───────────────────────────────────────────────── */
+.colour-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  grid-column: 1 / -1;
+}
+
+.colour-swatch-btn {
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+}
+
+.colour-swatch {
+  display: block;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: 2px solid rgba(0,0,0,.12);
+  flex-shrink: 0;
+}
+
+.inline-swatch {
+  display: inline-block;
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  border: 1px solid rgba(0,0,0,.15);
+  vertical-align: middle;
+  margin-left: 4px;
+}
+
+/* ── Edit overlay / modal ───────────────────────────────────────── */
+.edit-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  z-index: 100;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 40px 16px;
+  overflow-y: auto;
+}
+
+.edit-overlay.hidden { display: none; }
+
+.edit-modal {
+  background: var(--paper);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 480px;
+  padding: 28px;
+  position: relative;
+}
+
+.edit-modal-header { margin-bottom: 22px; }
+
+.edit-title {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 28px;
+  font-weight: 500;
+  margin: 0 0 4px;
+}
+
+.edit-subtitle {
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.edit-form { display: flex; flex-direction: column; gap: 16px; }
+
+.field-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.edit-field-group { display: flex; flex-direction: column; }
+
+.edit-field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* Photo area */
+.edit-photo-area {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--photo-bg);
+}
+
+.edit-photo-preview {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.edit-photo-preview img {
+  width: 100%; height: 100%;
+  object-fit: contain;
+}
+
+.edit-photo-placeholder { color: var(--muted); opacity: .5; }
+
+.edit-photo-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: #fff;
+  border-top: 1px solid var(--line);
+  font-size: 12px;
+}
+
+.edit-photo-filename {
+  flex: 1;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.edit-change-btn {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  color: var(--gold);
+  cursor: pointer;
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+
+.edit-change-btn:hover { color: var(--ink); }
+
+/* Edit actions */
+.edit-actions {
+  display: flex;
+  gap: 10px;
+  padding-top: 4px;
+}
+
+.edit-actions button[type="button"] {
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 10px 18px;
+  cursor: pointer;
+  color: var(--muted);
+}
+
+.edit-actions button[type="submit"] {
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  background: var(--ink);
+  color: #fff;
+  border: 1px solid var(--ink);
+  border-radius: 7px;
+  padding: 10px 24px;
+  cursor: pointer;
+  flex: 1;
+}
+
 /* ── Responsive ─────────────────────────────────────────────────── */
 @media (max-width: 900px) {
   .header-inner { padding: 0 16px; gap: 12px; }
