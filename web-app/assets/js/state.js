@@ -2,7 +2,7 @@ const createId = () =>
   globalThis.crypto?.randomUUID?.() ?? `id-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
 // Bump this key whenever the default wardrobe changes — clears old cached data
-const STORAGE_KEY = "forma_wardrobe_v3";
+const STORAGE_KEY = "curato_wardrobe_v1";
 
 const DEFAULT_WARDROBE = [
   {
@@ -160,12 +160,26 @@ export const state = {
   shoppingList: [],
   styleBoards: [
     {
-      id: createId(), title: "Quiet Luxury", theme: "neutral layers",
-      image: "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=900&q=80"
+      id: createId(),
+      title: "Everyday Essentials",
+      tags: ["all black", "blazer", "stripes", "summer", "oxford"],
+      images: [
+        "/style-board-photos/everyday-essentials-1.jpg",
+        "/style-board-photos/everyday-essentials-2.jpg",
+        "/style-board-photos/everyday-essentials-3.jpg",
+        "/style-board-photos/everyday-essentials-4.jpg",
+        "/style-board-photos/everyday-essentials-5.jpg"
+      ]
     },
     {
-      id: createId(), title: "Weekend Minimal", theme: "denim, knitwear",
-      image: "https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=900&q=80"
+      id: createId(),
+      title: "Weekend Minimal",
+      tags: ["denim", "knitwear", "relaxed"],
+      images: [
+        "/style-board-photos/weekend-minimal-1.jpg",
+        "/style-board-photos/weekend-minimal-2.jpg",
+        "/style-board-photos/weekend-minimal-3.jpg"
+      ]
     }
   ],
   activeFilter: "all"

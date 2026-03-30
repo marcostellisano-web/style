@@ -16,7 +16,7 @@ export function renderHeader() {
   return `
     <header class="site-header">
       <div class="header-inner">
-        <div class="brand">FOR<span class="brand-accent">M</span>A</div>
+        <div class="brand">Cur<span class="brand-accent">a</span>to</div>
         <nav class="top-nav" aria-label="Primary">${links}</nav>
         <div class="status-dot" aria-hidden="true"></div>
       </div>
