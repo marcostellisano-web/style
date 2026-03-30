@@ -407,19 +407,14 @@ export function initWardrobe(state) {
           <button class="card-edit-btn" data-id="${item.id}" type="button" aria-label="Edit ${item.name}">
             ${EDIT_ICON}
           </button>
-        </div>
-        <div class="wardrobe-meta">
-          <p class="item-category">${item.category.toUpperCase()}</p>
-          <h3 class="item-name">${item.name}</h3>
-          <p class="item-brand">
-            ${[item.brand, item.color].filter(Boolean).join(" · ")}
-            ${item.colorHex ? `<span class="inline-swatch" style="background:${item.colorHex}"></span>` : ""}
-          </p>
-          <div class="item-rating-row">
-            <span class="rating-badge ${ratingClass(item.rating)}">${item.rating}/10</span>
-            <span class="rating-label">${ratingLabel(item.rating)}</span>
+          <div class="wardrobe-meta">
+            <h3 class="item-name">${item.name}</h3>
+            <div class="item-rating-row">
+              <span class="rating-badge ${ratingClass(item.rating)}">${item.rating}/10</span>
+              <span class="rating-label">${ratingLabel(item.rating)}</span>
+            </div>
+            ${item.description ? `<p class="item-desc">${item.description}</p>` : ""}
           </div>
-          ${item.description ? `<p class="item-desc">${item.description}</p>` : ""}
         </div>
       </article>`
     ).join("");
