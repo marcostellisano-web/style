@@ -160,12 +160,26 @@ export const state = {
   shoppingList: [],
   styleBoards: [
     {
-      id: createId(), title: "Quiet Luxury", theme: "neutral layers",
-      image: "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=900&q=80"
+      id: createId(),
+      title: "Everyday Essentials",
+      tags: ["all black", "blazer", "stripes", "summer", "oxford"],
+      images: [
+        "https://images.unsplash.com/photo-1514996937319-344454492b37?auto=format&fit=crop&w=700&q=80",
+        "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=700&q=80",
+        "https://images.unsplash.com/photo-1484515991647-c5760fcecfc7?auto=format&fit=crop&w=700&q=80",
+        "https://images.unsplash.com/photo-1472417583565-62e7bdeda490?auto=format&fit=crop&w=700&q=80",
+        "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=700&q=80"
+      ]
     },
     {
-      id: createId(), title: "Weekend Minimal", theme: "denim, knitwear",
-      image: "https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=900&q=80"
+      id: createId(),
+      title: "Weekend Minimal",
+      tags: ["denim", "knitwear", "relaxed"],
+      images: [
+        "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=700&q=80",
+        "https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=700&q=80",
+        "https://images.unsplash.com/photo-1485968579580-b6d095142e6e?auto=format&fit=crop&w=700&q=80"
+      ]
     }
   ],
   activeFilter: "all"
