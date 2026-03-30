@@ -131,7 +131,7 @@ function renderGenerated() {
     .join("");
 }
 
-function renderSavedLooks() {
+function updateSavedLooksUI() {
   if (!state.savedLooks.length) {
     savedLooksList.innerHTML = "<p class='empty-state'>No looks saved yet.</p>";
     return;
@@ -225,11 +225,11 @@ outfitResults?.addEventListener("click", (event) => {
   if (!match) return;
 
   state.savedLooks.unshift(match);
-  renderSavedLooks();
+  updateSavedLooksUI();
   refreshShoppingList();
 });
 
 renderWardrobeGrid();
-renderSavedLooks();
+updateSavedLooksUI();
 refreshShoppingList();
 renderStyleBoards();
