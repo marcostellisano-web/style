@@ -22,12 +22,14 @@ app.innerHTML = `
   ${renderFooter()}
 `;
 
+const createId = () => globalThis.crypto?.randomUUID?.() ?? `id-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
 const state = {
   wardrobe: [
-    { id: crypto.randomUUID(), name: "Navy slim chinos", color: "Navy", brand: "H&M", category: "Trousers", rating: 9, photo: "" },
-    { id: crypto.randomUUID(), name: "White oxford shirt", color: "White", brand: "Uniqlo", category: "Shirts", rating: 8, photo: "" },
-    { id: crypto.randomUUID(), name: "Grey merino knit", color: "Grey", brand: "COS", category: "Knitwear", rating: 9, photo: "" },
-    { id: crypto.randomUUID(), name: "Black derby shoes", color: "Black", brand: "Clarks", category: "Shoes", rating: 8, photo: "" }
+    { id: createId(), name: "Navy slim chinos", color: "Navy", brand: "H&M", category: "Trousers", rating: 9, photo: "" },
+    { id: createId(), name: "White oxford shirt", color: "White", brand: "Uniqlo", category: "Shirts", rating: 8, photo: "" },
+    { id: createId(), name: "Grey merino knit", color: "Grey", brand: "COS", category: "Knitwear", rating: 9, photo: "" },
+    { id: createId(), name: "Black derby shoes", color: "Black", brand: "Clarks", category: "Shoes", rating: 8, photo: "" }
   ],
   generated: [],
   savedLooks: [],
@@ -79,7 +81,7 @@ function generateOutfitSet() {
     const items = picks.slice(index, index + 3);
     const rating = Math.min(10, Math.round((items.reduce((sum, item) => sum + item.rating, 0) / items.length) * 10) / 10);
     return {
-      id: crypto.randomUUID(),
+      id: createId(),
       headline: `Look ${index + 1}: ${items[0]?.category || "Wardrobe"} focus`,
       note: "Balanced layers with tonal contrast. Roll sleeves and add texture via accessories.",
       rating,
@@ -171,7 +173,7 @@ form?.addEventListener("submit", (event) => {
   event.preventDefault();
   const data = new FormData(form);
   const entry = {
-    id: crypto.randomUUID(),
+    id: createId(),
     name: String(data.get("name") || "").trim(),
     color: String(data.get("color") || "").trim(),
     brand: String(data.get("brand") || "").trim(),
