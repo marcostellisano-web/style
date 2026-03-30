@@ -1,9 +1,9 @@
 const navItems = [
-  { href: "#wardrobe", label: "Wardrobe" },
+  { href: "#wardrobe", label: "Wardrobe", active: true },
   { href: "#generate", label: "Generate" },
   { href: "#style-boards", label: "Most Worn" },
   { href: "#saved-looks", label: "Saved Looks" },
-  { href: "#shopping-list", label: "Shopping List" }
+  { href: "#shopping-list", label: "Shopping List", outlined: true }
 ];
 
 export function renderHeader() {
