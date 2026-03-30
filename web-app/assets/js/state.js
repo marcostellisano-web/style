@@ -2,7 +2,7 @@ const createId = () =>
   globalThis.crypto?.randomUUID?.() ?? `id-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
 // Bump this key whenever the default wardrobe changes — clears old cached data
-const STORAGE_KEY = "forma_wardrobe_v3";
+const STORAGE_KEY = "curato_wardrobe_v1";
 
 const DEFAULT_WARDROBE = [
   {
