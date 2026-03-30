@@ -1,4 +1,32 @@
+const filters = [
+  "All Pieces",
+  "Tops",
+  "Bottoms",
+  "Statement",
+  "Outerwear",
+  "Footwear",
+  "Accessories"
+];
+
+const cards = ["Classic Trousers", "Relaxed Pants", "Dark Denim", "Blue Shirt", "White Tee"];
+
 export function renderWardrobe() {
+  const filterButtons = filters
+    .map(
+      (name, index) => `<button type="button" class="filter-pill ${index === 0 ? "is-active" : ""}">${name}</button>`
+    )
+    .join("");
+
+  const itemCards = cards
+    .map(
+      (name) => `
+        <article class="wardrobe-card" aria-label="${name}">
+          <div class="item-silhouette" role="img" aria-label="${name}"></div>
+        </article>
+      `
+    )
+    .join("");
+
   return `
     <section class="app-section wardrobe-section" id="wardrobe">
       <p class="eyebrow">Your Collection</p>
