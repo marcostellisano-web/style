@@ -295,7 +295,7 @@ select { cursor: pointer; }
 }
 
 .wardrobe-photo {
-  background: var(--photo-bg);
+  background: #ffffff;
   aspect-ratio: 3 / 4;
   display: flex;
   align-items: center;
