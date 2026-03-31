@@ -616,8 +616,8 @@ ${summary}`;
       return;
     }
 
-    // Push to shopping list
-    state.refineList = results.suggestions.map(s => ({
+    // Append new suggestions to shopping list, skip duplicates by name
+    const newItems = results.suggestions.map(s => ({
       item:        s.item,
       category:    s.category || "Other",
       brand:       s.brand || "",
@@ -626,6 +626,10 @@ ${summary}`;
       pairs_with:  s.pairs_with || "",
       searchUrl:   `https://www.google.com/search?q=${encodeURIComponent(`${s.item} ${s.brand || ""}`.trim())}&tbm=shop`
     }));
+    const existing = new Set((state.refineList || []).map(i => i.item.toLowerCase()));
+    newItems.forEach(item => {
+      if (!existing.has(item.item.toLowerCase())) state.refineList.push(item);
+    });
     saveRefineList(state.refineList);
     onRefine?.();
 
