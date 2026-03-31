@@ -420,10 +420,27 @@ export function initWardrobe(state) {
     }
   });
 
+  // Round-robin interleave by category so "All Pieces" feels organic
+  function interleave(items) {
+    const groups = {};
+    items.forEach(item => {
+      (groups[item.category] ??= []).push(item);
+    });
+    const queues = Object.values(groups);
+    const result = [];
+    let added = true;
+    while (added) {
+      added = false;
+      queues.forEach(q => { if (q.length) { result.push(q.shift()); added = true; } });
+    }
+    return result;
+  }
+
   function renderGrid() {
-    const items = state.activeFilter === "all"
+    const raw = state.activeFilter === "all"
       ? state.wardrobe
       : state.wardrobe.filter(i => i.category === state.activeFilter);
+    const items = state.activeFilter === "all" ? interleave(raw) : raw;
 
     if (!items.length) {
       const label = state.activeFilter === "all" ? "items" : state.activeFilter.toLowerCase();

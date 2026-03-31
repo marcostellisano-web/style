@@ -307,7 +307,7 @@ select { cursor: pointer; }
 }
 
 /* Category sizing — mirrors the collage proportions in the inspo images */
-.wardrobe-card--bottoms     { grid-column: span 2; grid-row: span 5; }
+.wardrobe-card--bottoms     { grid-column: span 2; grid-row: span 3; }
 .wardrobe-card--tops        { grid-column: span 2; grid-row: span 3; }
 .wardrobe-card--outerwear   { grid-column: span 2; grid-row: span 3; }
 .wardrobe-card--footwear    { grid-column: span 2; grid-row: span 2; }
@@ -891,7 +891,7 @@ select { cursor: pointer; }
   .style-boards-grid { grid-template-columns: 1fr; }
   .outfit-results { grid-template-columns: 1fr; }
   .wardrobe-grid { grid-template-columns: repeat(6, 1fr); grid-auto-rows: 60px; gap: 6px; }
-  .wardrobe-card--bottoms  { grid-column: span 2; grid-row: span 5; }
+  .wardrobe-card--bottoms  { grid-column: span 2; grid-row: span 3; }
   .wardrobe-card--tops     { grid-column: span 2; grid-row: span 3; }
   .wardrobe-card--outerwear { grid-column: span 2; grid-row: span 3; }
   .wardrobe-card--footwear  { grid-column: span 2; grid-row: span 2; }
