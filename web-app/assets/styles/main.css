@@ -120,7 +120,7 @@ body {
   padding: 20px 0 16px;
   border-bottom: 1px solid var(--line);
   margin-bottom: 24px;
-  max-width: 960px;
+  max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
 }
@@ -184,7 +184,7 @@ body {
 /* ── Add piece panel ────────────────────────────────────────────── */
 .add-piece-panel {
   margin-bottom: 24px;
-  max-width: 960px;
+  max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
 }
@@ -289,10 +289,10 @@ select { cursor: pointer; }
 .wardrobe-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 2px;
-  max-width: 960px;
+  gap: 20px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding-bottom: 60px;
+  padding-bottom: 80px;
 }
 
 /* ── Wardrobe card ─────────────────────────────────────────────── */
@@ -309,7 +309,7 @@ select { cursor: pointer; }
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: 48px 36px;
   overflow: hidden;
   position: relative;
   transition: background .15s;
