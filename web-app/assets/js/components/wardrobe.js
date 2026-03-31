@@ -546,8 +546,10 @@ ${summary}`;
       throw new Error(err.error?.message || `API error ${res.status}`);
     }
     const data = await res.json();
-    const text = (data.content[0]?.text || "").replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
-    return JSON.parse(text || "{}");
+    const raw = data.content[0]?.text || "";
+    const start = raw.indexOf("{");
+    const end = raw.lastIndexOf("}");
+    return JSON.parse(raw.slice(start, end + 1));
   }
 
   function renderRefineResults(results) {
