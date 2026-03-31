@@ -180,10 +180,6 @@ body {
 
 /* ── Add piece panel ────────────────────────────────────────────── */
 .add-piece-panel {
-  background: var(--card-bg);
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  padding: 20px;
   margin-bottom: 24px;
 }
 
@@ -191,15 +187,20 @@ body {
 
 .item-form {
   display: grid;
-  grid-template-columns: 140px 1fr;
+  grid-template-columns: 110px 1fr;
   gap: 16px;
   align-items: start;
+  background: var(--card-bg);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 18px;
+  max-width: 560px;
 }
 
 .photo-upload-label { cursor: pointer; display: block; }
 
 .photo-upload-preview {
-  width: 140px;
+  width: 110px;
   aspect-ratio: 3/4;
   background: var(--photo-bg);
   border-radius: 8px;
@@ -225,7 +226,7 @@ body {
 .item-form-fields {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: 6px;
   align-content: start;
 }
 
