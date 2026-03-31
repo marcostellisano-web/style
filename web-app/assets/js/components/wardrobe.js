@@ -382,9 +382,30 @@ export function initWardrobe(state) {
   // ── Grid ─────────────────────────────────────────────────────────
   grid.addEventListener("click", e => {
     const btn = e.target.closest(".card-edit-btn");
-    if (!btn) return;
-    const item = state.wardrobe.find(i => i.id === btn.dataset.id);
-    if (item) openEditModal(item);
+    if (btn) {
+      const item = state.wardrobe.find(i => i.id === btn.dataset.id);
+      if (item) openEditModal(item);
+      return;
+    }
+
+    // Tap-to-reveal on touch devices
+    if (!window.matchMedia("(hover: none)").matches) return;
+    const card = e.target.closest(".wardrobe-card");
+    if (!card) {
+      grid.querySelectorAll(".wardrobe-card.is-active").forEach(c => c.classList.remove("is-active"));
+      return;
+    }
+    const isActive = card.classList.contains("is-active");
+    grid.querySelectorAll(".wardrobe-card.is-active").forEach(c => c.classList.remove("is-active"));
+    if (!isActive) card.classList.add("is-active");
+  });
+
+  // Dismiss overlay when tapping outside the grid
+  document.addEventListener("click", e => {
+    if (!window.matchMedia("(hover: none)").matches) return;
+    if (!e.target.closest("#wardrobe-grid")) {
+      grid.querySelectorAll(".wardrobe-card.is-active").forEach(c => c.classList.remove("is-active"));
+    }
   });
 
   function renderGrid() {
@@ -407,19 +428,14 @@ export function initWardrobe(state) {
           <button class="card-edit-btn" data-id="${item.id}" type="button" aria-label="Edit ${item.name}">
             ${EDIT_ICON}
           </button>
-        </div>
-        <div class="wardrobe-meta">
-          <p class="item-category">${item.category.toUpperCase()}</p>
-          <h3 class="item-name">${item.name}</h3>
-          <p class="item-brand">
-            ${[item.brand, item.color].filter(Boolean).join(" · ")}
-            ${item.colorHex ? `<span class="inline-swatch" style="background:${item.colorHex}"></span>` : ""}
-          </p>
-          <div class="item-rating-row">
-            <span class="rating-badge ${ratingClass(item.rating)}">${item.rating}/10</span>
-            <span class="rating-label">${ratingLabel(item.rating)}</span>
+          <div class="wardrobe-meta">
+            <h3 class="item-name">${item.name}</h3>
+            <div class="item-rating-row">
+              <span class="rating-badge ${ratingClass(item.rating)}">${item.rating}/10</span>
+              <span class="rating-label">${ratingLabel(item.rating)}</span>
+            </div>
+            ${item.description ? `<p class="item-desc">${item.description}</p>` : ""}
           </div>
-          ${item.description ? `<p class="item-desc">${item.description}</p>` : ""}
         </div>
       </article>`
     ).join("");

@@ -2,7 +2,7 @@ const createId = () =>
   globalThis.crypto?.randomUUID?.() ?? `id-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
 // Bump this key whenever the default wardrobe changes — clears old cached data
-const STORAGE_KEY = "curato_wardrobe_v1";
+const STORAGE_KEY = "curato_wardrobe_v2";
 
 const DEFAULT_WARDROBE = [
   {
@@ -10,7 +10,7 @@ const DEFAULT_WARDROBE = [
     name: "Pleated Wide Pants",
     brand: "Uniqlo", color: "Black", colorHex: "#111111",
     category: "Bottoms", rating: 9.5,
-    photo: "/wardrobe-photos/uniqlo%20pleated%20wide%20pants%20-%20black.jpeg",
+    photo: "/wardrobe-photos/uniqlo%20pleated%20wide%20pants%20-%20black.png",
     description: "Your single best bottom. Black pleated wide leg elevates any basic top immediately. Dress up with the chunky loafer or down with the Sambas. Never looks like an accident."
   },
   {
@@ -18,7 +18,7 @@ const DEFAULT_WARDROBE = [
     name: "Barrel Leg Trousers",
     brand: "Uniqlo", color: "Olive", colorHex: "#4d7c0f",
     category: "Bottoms", rating: 9,
-    photo: "/wardrobe-photos/uniqlo%20barrel%20leg%20trousers%20-%20olive.jpeg",
+    photo: "/wardrobe-photos/uniqlo%20barrel%20leg%20trousers%20-%20olive.png",
     description: "Olive is the surprise performer in your wardrobe. It plays equally well with cream, black, white, and navy. The barrel silhouette balances a fitted top perfectly."
   },
   {
@@ -26,7 +26,7 @@ const DEFAULT_WARDROBE = [
     name: "Wide Fit Jeans",
     brand: "Uniqlo", color: "Black", colorHex: "#1a1a1a",
     category: "Bottoms", rating: 8,
-    photo: "/wardrobe-photos/uniqlo%20wide%20fit%20jeans%20-%20black.jpeg",
+    photo: "/wardrobe-photos/uniqlo%20wide%20fit%20jeans%20-%20black.png",
     description: "The everyday workhorse. Black wide-leg denim reads more intentional than dark wash. Reliable across all your footwear — the Sambas and Club C both work well here."
   },
   {
@@ -34,7 +34,7 @@ const DEFAULT_WARDROBE = [
     name: "Oxford Boxy Cropped Shirt",
     brand: "Uniqlo", color: "Light Blue", colorHex: "#93c5fd",
     category: "Tops", rating: 9,
-    photo: "/wardrobe-photos/uniqlo%20oxford%20boxy%20cropped%20shirt.jpeg",
+    photo: "/wardrobe-photos/uniqlo%20oxford%20boxy%20cropped%20shirt.png",
     description: "The cropped boxy cut hits the balance point between oversized and fitted. Half-tuck into the pleated wide pants — the proportion does all the work."
   },
   {
@@ -42,7 +42,7 @@ const DEFAULT_WARDROBE = [
     name: "Waffle Crew Neck",
     brand: "Uniqlo", color: "Cream", colorHex: "#e8e0d0",
     category: "Tops", rating: 8.5,
-    photo: "/wardrobe-photos/uniqlo%20waffle%20crew%20neck.jpeg",
+    photo: "/wardrobe-photos/uniqlo%20waffle%20crew%20neck.png",
     description: "The texture play in an otherwise minimal wardrobe. The waffle knit adds visual interest without pattern — wear with the olive trousers for an easy tonal palette."
   },
   {
@@ -50,7 +50,7 @@ const DEFAULT_WARDROBE = [
     name: "Basic Black Tee",
     brand: "", color: "Black", colorHex: "#111111",
     category: "Tops", rating: 8,
-    photo: "/wardrobe-photos/basic%20black%20tee.jpg",
+    photo: "/wardrobe-photos/basic%20black%20tee.png",
     description: "The true foundation layer. Slightly oversized through the shoulder reads more editorial than a fitted crew. Tuck one side for shape under the barrel leg trousers."
   },
   {
@@ -58,7 +58,7 @@ const DEFAULT_WARDROBE = [
     name: "Basic White Tee",
     brand: "", color: "White", colorHex: "#f5f5f5",
     category: "Tops", rating: 8,
-    photo: "/wardrobe-photos/basic%20white%20tee.jpg",
+    photo: "/wardrobe-photos/basic%20white%20tee.png",
     description: "The cleanest canvas you own. Half-tuck into wide trousers, wear under an open shirt, or style alone with the Sambas. Almost always the right call."
   },
   {
@@ -66,7 +66,7 @@ const DEFAULT_WARDROBE = [
     name: "Utility Jacket",
     brand: "Uniqlo", color: "Olive", colorHex: "#4d7c0f",
     category: "Outerwear", rating: 8.5,
-    photo: "/wardrobe-photos/uniqlo%20utility%20jacket.jpg",
+    photo: "/wardrobe-photos/uniqlo%20utility%20jacket.png",
     description: "The functional layer that doubles as a statement. Wear open over a tee or closed over knitwear. The utility pockets keep it grounded — pairs especially well with black and white basics."
   },
   {
@@ -74,7 +74,7 @@ const DEFAULT_WARDROBE = [
     name: "Italy Windbreaker",
     brand: "Adidas", color: "Blue", colorHex: "#003da5",
     category: "Outerwear", rating: 8.5,
-    photo: "/wardrobe-photos/adidas%20italy%20windbreaker.jpg",
+    photo: "/wardrobe-photos/adidas%20italy%20windbreaker.png",
     description: "The sporting archive at its best. Layer over a basic tee with barrel-leg trousers for a continental athletic look. The Italian colourway keeps it from reading too casual."
   },
   {
@@ -82,7 +82,7 @@ const DEFAULT_WARDROBE = [
     name: "2024 Vintage Milan Kit",
     brand: "AC Milan", color: "Red and Black", colorHex: "#cc0000",
     category: "Statement", rating: 9,
-    photo: "/wardrobe-photos/2024%20vintage%20milan%20kit.jpg",
+    photo: "/wardrobe-photos/2024%20vintage%20milan%20kit.png",
     description: "A conversation-starting statement piece. Worn casually with wide trousers or baggy denim it reads as effortlessly cool rather than costume. The bolder the piece, the simpler the rest."
   },
   {
@@ -90,7 +90,7 @@ const DEFAULT_WARDROBE = [
     name: "Sambas",
     brand: "Adidas", color: "Black", colorHex: "#111111",
     category: "Footwear", rating: 9.5,
-    photo: "/wardrobe-photos/adidas%20sambas%20-%20black.jpeg",
+    photo: "/wardrobe-photos/adidas%20sambas%20-%20black.png",
     description: "The most versatile trainer in rotation. Black on black keeps it sleek — works under tailoring, wide denim, or any casual outfit without overthinking."
   },
   {
@@ -98,7 +98,7 @@ const DEFAULT_WARDROBE = [
     name: "Club C",
     brand: "Reebok", color: "White", colorHex: "#f0ede8",
     category: "Footwear", rating: 8.5,
-    photo: "/wardrobe-photos/reeok%20club%20c.jpg",
+    photo: "/wardrobe-photos/reeok%20club%20c.png",
     description: "The clean alternative to the Samba. The low-profile white court shoe has a quieter energy — great with navy, olive, or black bottoms when you want the shoes to disappear."
   },
   {
@@ -106,7 +106,7 @@ const DEFAULT_WARDROBE = [
     name: "Chunky Loafer",
     brand: "", color: "Black", colorHex: "#111111",
     category: "Footwear", rating: 9,
-    photo: "/wardrobe-photos/chunky%20loafer%20-%20black.jpg",
+    photo: "/wardrobe-photos/chunky%20loafer%20-%20black.png",
     description: "The silhouette upgrade. The chunky sole adds visual weight that balances beautifully against wide-leg trousers. Dressier than trainers but never stuffy."
   },
   {
@@ -114,7 +114,7 @@ const DEFAULT_WARDROBE = [
     name: "Tassel Loafer",
     brand: "", color: "Tan", colorHex: "#c4a882",
     category: "Footwear", rating: 8.5,
-    photo: "/wardrobe-photos/tassle%20loafer.webp",
+    photo: "/wardrobe-photos/tassle%20loafer.png",
     description: "The heritage dressy option. The tassel detail lifts a simple outfit into something more deliberate. Wear with the pleated wide pants for a continental European look."
   },
   {
@@ -122,7 +122,7 @@ const DEFAULT_WARDROBE = [
     name: "Tank Watch",
     brand: "Seiko", color: "Silver", colorHex: "#9ca3af",
     category: "Accessories", rating: 9,
-    photo: "/wardrobe-photos/seiko%20tank.jpg",
+    photo: "/wardrobe-photos/seiko%20tank.png",
     description: "The most considered accessory in your wardrobe. A slim rectangular case reads with quiet authority — equally at home with a cropped shirt or rolled sleeves on a casual day."
   },
   {
@@ -130,7 +130,7 @@ const DEFAULT_WARDROBE = [
     name: "Gold Hoop Earrings",
     brand: "", color: "Gold", colorHex: "#ca8a04",
     category: "Accessories", rating: 9,
-    photo: "/wardrobe-photos/gold%20hoop%20earrings.JPG",
+    photo: "/wardrobe-photos/gold%20hoop%20earrings.png",
     description: "The instant polish piece. A medium hoop pulls any outfit from casual to considered without effort. Works equally with a basic tee or a structured shirt."
   }
 ];
