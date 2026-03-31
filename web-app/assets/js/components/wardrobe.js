@@ -56,7 +56,7 @@ function categoryOptions(selected = "") {
 
 export function renderWardrobe() {
   const pills = CATEGORIES.map((cat, i) =>
-    `<button type="button" class="filter-pill${i === 0 ? " is-active" : ""}" data-filter="${i === 0 ? "all" : cat}">${cat.toUpperCase()}</button>`
+    `<button type="button" class="filter-pill${i === 0 ? " is-active" : ""}" data-filter="${i === 0 ? "all" : cat}">${cat}</button>`
   ).join("");
 
   return `
