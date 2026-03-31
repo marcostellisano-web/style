@@ -44,10 +44,10 @@ export function initShoppingList(state) {
                 <h3 class="shop-tile-name">${s.item}</h3>
                 <p class="shop-tile-meta">${[s.brand, s.price_range].filter(Boolean).join(" · ")}</p>
                 <button class="shop-tile-expand" data-idx="${items.indexOf(s)}" type="button">Details</button>
+                <a class="shop-link" href="${s.searchUrl}" target="_blank" rel="noopener">Shop →</a>
                 <div class="shop-tile-desc">
                   ${s.why    ? `<p>${s.why}</p>`        : ""}
                   ${s.pairs_with ? `<p class="shop-tile-pairs">${s.pairs_with}</p>` : ""}
-                  <a class="shop-link" href="${s.searchUrl}" target="_blank" rel="noopener">Shop →</a>
                 </div>
               </article>`).join("")}
           </div>

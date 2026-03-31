@@ -897,9 +897,9 @@ select { cursor: pointer; }
   color: var(--gold);
   text-decoration: none;
   letter-spacing: .06em;
-  margin-top: 4px;
-  align-self: flex-start;
+  margin-top: 2px;
   transition: color .2s ease;
+  display: inline-block;
 }
 .shop-link:hover { color: var(--ink); }
 
