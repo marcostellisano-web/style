@@ -546,7 +546,8 @@ ${summary}`;
       throw new Error(err.error?.message || `API error ${res.status}`);
     }
     const data = await res.json();
-    return JSON.parse(data.content[0]?.text || "{}");
+    const text = (data.content[0]?.text || "").replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
+    return JSON.parse(text || "{}");
   }
 
   function renderRefineResults(results) {
