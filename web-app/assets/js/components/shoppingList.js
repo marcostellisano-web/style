@@ -25,7 +25,6 @@ export function initShoppingList(state) {
       return;
     }
 
-    // Group by category in canonical order
     const groups = {};
     CATEGORY_ORDER.forEach(cat => { groups[cat] = []; });
     items.forEach(item => {
@@ -37,32 +36,26 @@ export function initShoppingList(state) {
       .filter(cat => groups[cat].length)
       .map(cat => `
         <div class="shop-category">
-          <h3 class="shop-category-label">${cat}</h3>
-          ${groups[cat].map((s, i) => `
-            <div class="shop-item" data-category="${cat}" data-index="${items.indexOf(s)}">
-              <div class="shop-item-main">
-                <div class="shop-item-left">
-                  <div class="shop-item-name-row">
-                    <span class="shop-item-name">${s.item}</span>
-                    <a class="shop-link" href="${s.searchUrl}" target="_blank" rel="noopener">Shop →</a>
-                  </div>
-                  <div class="shop-item-sub">
-                    <button class="shop-expand-btn" data-idx="${items.indexOf(s)}" type="button">Details</button>
-                    <span class="shop-item-meta">${[s.brand, s.price_range].filter(Boolean).join(" · ")}</span>
-                  </div>
+          <p class="shop-category-label">${cat}</p>
+          <div class="shop-tile-grid">
+            ${groups[cat].map(s => `
+              <article class="shop-tile">
+                <button class="shop-tile-delete" data-idx="${items.indexOf(s)}" type="button" aria-label="Remove">✕</button>
+                <h3 class="shop-tile-name">${s.item}</h3>
+                <p class="shop-tile-meta">${[s.brand, s.price_range].filter(Boolean).join(" · ")}</p>
+                <button class="shop-tile-expand" data-idx="${items.indexOf(s)}" type="button">Details</button>
+                <div class="shop-tile-desc">
+                  ${s.why    ? `<p>${s.why}</p>`        : ""}
+                  ${s.pairs_with ? `<p class="shop-tile-pairs">${s.pairs_with}</p>` : ""}
+                  <a class="shop-link" href="${s.searchUrl}" target="_blank" rel="noopener">Shop →</a>
                 </div>
-                <button class="shop-delete-btn" data-idx="${items.indexOf(s)}" type="button" aria-label="Remove">✕</button>
-              </div>
-              <div class="shop-item-desc">
-                ${s.why ? `<p><span class="shop-desc-label">Why it matters</span>${s.why}</p>` : ""}
-                ${s.pairs_with ? `<p><span class="shop-desc-label">Pairs with</span>${s.pairs_with}</p>` : ""}
-              </div>
-            </div>`).join("")}
+              </article>`).join("")}
+          </div>
         </div>`).join("");
   }
 
   listEl.addEventListener("click", e => {
-    const deleteBtn = e.target.closest(".shop-delete-btn");
+    const deleteBtn = e.target.closest(".shop-tile-delete");
     if (deleteBtn) {
       const idx = parseInt(deleteBtn.dataset.idx, 10);
       state.refineList.splice(idx, 1);
@@ -71,10 +64,9 @@ export function initShoppingList(state) {
       return;
     }
 
-    const expandBtn = e.target.closest(".shop-expand-btn");
+    const expandBtn = e.target.closest(".shop-tile-expand");
     if (expandBtn) {
-      const item = expandBtn.closest(".shop-item");
-      item.classList.toggle("is-open");
+      expandBtn.closest(".shop-tile").classList.toggle("is-open");
     }
   });
 
