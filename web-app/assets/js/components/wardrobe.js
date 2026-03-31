@@ -1,4 +1,4 @@
-import { saveWardrobe } from "../state.js";
+import { saveWardrobe, saveRefineList } from "../state.js";
 
 const CATEGORIES = ["All Pieces", "Tops", "Bottoms", "Statement", "Outerwear", "Footwear", "Accessories"];
 
@@ -62,10 +62,27 @@ export function renderWardrobe() {
   return `
     <section class="tab-panel" id="wardrobe">
 
+      <!-- Hero header -->
+      <div class="wardrobe-hero">
+        <p class="wardrobe-kicker">Your Collection</p>
+        <h1 class="wardrobe-title">The Wardrobe</h1>
+        <p class="wardrobe-subtitle">Every piece, rated</p>
+        <p class="wardrobe-desc">Click any item to anchor an outfit around it, then head to Generate. Hover a card and click the edit icon to update details or add a photo.</p>
+      </div>
+
+      <!-- Anchor banner -->
+      <div id="anchor-banner" class="anchor-banner hidden">
+        Anchoring around <strong id="anchor-name"></strong>
+        <button type="button" id="clear-anchor">Clear</button>
+      </div>
+
       <!-- Controls bar -->
       <div class="wardrobe-controls">
         <div class="filter-bar" id="filter-bar" role="group" aria-label="Filter by category">${pills}<button type="button" class="add-piece-btn" id="add-piece-toggle">+ Add piece</button></div>
-        <button type="button" class="refine-btn" id="refine-btn">Refine</button>
+        <div class="refine-btn-wrap">
+          <button type="button" class="refine-btn" id="refine-btn">Refine</button>
+          <div class="refine-tooltip">AI analyses your wardrobe and suggests up to 3 highly intentional additions — with specific brands, price ranges, and outfit pairings.</div>
+        </div>
       </div>
 
       <!-- Refine panel -->
@@ -458,7 +475,7 @@ export function initWardrobe(state, { onRefine } = {}) {
     }
 
     grid.innerHTML = items.map((item, index) => `
-      <article class="wardrobe-card">
+      <article class="wardrobe-card${state.anchoredItem?.id === item.id ? " is-anchored" : ""}" data-id="${item.id}">
         <div class="wardrobe-photo">
           ${item.photo
             ? `<img src="${item.photo}" alt="${item.name}" loading="lazy" />`
@@ -482,6 +499,44 @@ export function initWardrobe(state, { onRefine } = {}) {
   }
 
   renderGrid();
+
+  // ── Anchor ─────────────────────────────────────────────────────────
+  const anchorBanner = document.querySelector("#anchor-banner");
+  const anchorName   = document.querySelector("#anchor-name");
+  const clearAnchor  = document.querySelector("#clear-anchor");
+
+  function updateAnchorBanner() {
+    if (state.anchoredItem) {
+      anchorName.textContent = state.anchoredItem.name;
+      anchorBanner.classList.remove("hidden");
+    } else {
+      anchorBanner.classList.add("hidden");
+    }
+  }
+
+  grid.addEventListener("click", e => {
+    if (e.target.closest(".card-edit-btn")) return; // let edit handle it
+    const card = e.target.closest(".wardrobe-card");
+    if (!card) return;
+    const item = state.wardrobe.find(i => i.id === card.dataset.id);
+    if (!item) return;
+    // toggle anchor
+    if (state.anchoredItem?.id === item.id) {
+      state.anchoredItem = null;
+    } else {
+      state.anchoredItem = item;
+    }
+    updateAnchorBanner();
+    renderGrid();
+  });
+
+  clearAnchor?.addEventListener("click", () => {
+    state.anchoredItem = null;
+    updateAnchorBanner();
+    renderGrid();
+  });
+
+  updateAnchorBanner();
 
   // ── Refine ─────────────────────────────────────────────────────────
   const refineBtn     = document.querySelector("#refine-btn");
@@ -538,7 +593,7 @@ ${summary}`;
         "anthropic-dangerous-direct-browser-access": "true"
       },
       body: JSON.stringify({
-        model: "claude-opus-4-6",
+        model: "claude-sonnet-4-6",
         max_tokens: 1024,
         messages: [{ role: "user", content: prompt }]
       })
@@ -571,6 +626,7 @@ ${summary}`;
       pairs_with:  s.pairs_with || "",
       searchUrl:   `https://www.google.com/search?q=${encodeURIComponent(`${s.item} ${s.brand || ""}`.trim())}&tbm=shop`
     }));
+    saveRefineList(state.refineList);
     onRefine?.();
 
     refineContent.innerHTML = `<div class="refine-suggestions">${

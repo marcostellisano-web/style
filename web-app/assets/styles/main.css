@@ -112,6 +112,79 @@ body {
   border-bottom: 1px solid var(--line);
 }
 
+/* ── Wardrobe hero ──────────────────────────────────────────────── */
+.wardrobe-hero {
+  padding: 36px 0 28px;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.wardrobe-kicker {
+  font-family: Inter, sans-serif;
+  font-size: 9px;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  color: #b79a6f;
+  margin: 0 0 10px;
+}
+
+.wardrobe-title {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 64px;
+  font-weight: 400;
+  color: var(--ink);
+  margin: 0;
+  line-height: 1;
+}
+
+.wardrobe-subtitle {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 64px;
+  font-weight: 400;
+  font-style: italic;
+  color: var(--muted);
+  margin: 0 0 18px;
+  line-height: 1;
+}
+
+.wardrobe-desc {
+  font-size: 13px;
+  color: var(--muted);
+  max-width: 520px;
+  line-height: 1.65;
+  margin: 0;
+}
+
+/* ── Anchor banner ──────────────────────────────────────────────── */
+.anchor-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.anchor-banner strong { color: var(--ink); }
+
+.anchor-banner button {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-size: 11px;
+  color: var(--muted);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color .2s;
+}
+.anchor-banner button:hover { color: var(--ink); }
+
 /* ── Wardrobe: top controls ─────────────────────────────────────── */
 .wardrobe-controls {
   display: flex;
@@ -208,6 +281,45 @@ body {
 }
 
 .refine-btn:hover { color: var(--ink); }
+
+.refine-btn-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.refine-tooltip {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 10px);
+  width: 240px;
+  background: var(--ink);
+  color: #fff;
+  font-family: Inter, sans-serif;
+  font-size: 11px;
+  line-height: 1.6;
+  padding: 10px 12px;
+  border-radius: 6px;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity .2s ease, transform .2s ease;
+  z-index: 20;
+}
+
+.refine-tooltip::before {
+  content: "";
+  position: absolute;
+  top: -5px;
+  right: 12px;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 5px solid var(--ink);
+}
+
+.refine-btn-wrap:hover .refine-tooltip {
+  opacity: 1;
+  transform: translateY(0);
+}
 
 /* ── Refine panel ───────────────────────────────────────────────── */
 .refine-panel {
@@ -462,6 +574,13 @@ select { cursor: pointer; }
 
 .wardrobe-card:hover .wardrobe-photo,
 .wardrobe-card.is-active .wardrobe-photo { background: #eeeae5; }
+
+.wardrobe-card.is-anchored .wardrobe-photo {
+  outline: 2px solid var(--gold);
+  outline-offset: -2px;
+}
+
+.wardrobe-card.is-anchored .item-name { color: var(--gold); }
 
 .wardrobe-photo img {
   width: 100%;
@@ -793,7 +912,7 @@ select { cursor: pointer; }
 .saved-look p  { margin: 0; font-size: 12px; color: var(--muted); }
 
 /* ── Shopping list ──────────────────────────────────────────────── */
-.shopping-list-items { display: grid; gap: 0; max-width: 1200px; margin: 0 auto; }
+.shopping-list-items { display: grid; gap: 0; }
 
 .shop-category { margin-bottom: 32px; }
 
@@ -803,112 +922,105 @@ select { cursor: pointer; }
   letter-spacing: .18em;
   text-transform: uppercase;
   color: var(--muted);
-  margin: 0 0 2px;
+  margin: 0 0 12px;
   font-weight: 500;
 }
 
-.shop-item {
-  border-top: 1px solid var(--line);
-}
-.shop-category:last-child .shop-item:last-child { border-bottom: 1px solid var(--line); }
-
-.shop-item-main {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+.shop-tile-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 16px;
-  padding: 14px 0;
 }
 
-.shop-item-left { display: flex; flex-direction: column; gap: 3px; }
-
-.shop-item-name {
-  font-family: "Cormorant Garamond", serif;
-  font-size: 17px;
-  font-weight: 500;
-  color: var(--ink);
-  line-height: 1.2;
-}
-
-.shop-item-meta {
-  font-size: 11px;
-  color: var(--muted);
-  font-style: italic;
-}
-
-.shop-item-actions {
+.shop-tile {
+  background: #f0ede8;
+  padding: 16px;
+  position: relative;
   display: flex;
-  align-items: center;
-  gap: 16px;
-  flex-shrink: 0;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.shop-link {
-  font-family: Inter, sans-serif;
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--gold);
-  text-decoration: none;
-  white-space: nowrap;
-  letter-spacing: .06em;
-  transition: color .2s ease;
-}
-.shop-link:hover { color: var(--ink); }
-
-.shop-expand-btn {
+.shop-tile-delete {
+  position: absolute;
+  top: 10px;
+  right: 10px;
   background: none;
   border: none;
   padding: 0;
-  font-family: Inter, sans-serif;
-  font-size: 11px;
-  letter-spacing: .06em;
-  color: var(--muted);
-  cursor: pointer;
-  white-space: nowrap;
-  transition: color .2s ease;
-}
-.shop-expand-btn:hover { color: var(--ink); }
-.shop-item.is-open .shop-expand-btn { color: var(--ink); }
-
-.shop-delete-btn {
-  background: none;
-  border: none;
-  padding: 0;
-  font-size: 11px;
+  font-size: 10px;
   color: var(--muted);
   cursor: pointer;
   opacity: 0;
   transition: opacity .15s, color .15s;
   line-height: 1;
 }
-.shop-item:hover .shop-delete-btn { opacity: 1; }
-.shop-delete-btn:hover { color: var(--ink); }
+.shop-tile:hover .shop-tile-delete { opacity: 1; }
+.shop-tile-delete:hover { color: var(--ink); }
 
-.shop-item-desc {
-  display: none;
-  padding: 0 0 16px;
+.shop-tile-name {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ink);
+  margin: 0;
+  line-height: 1.3;
+  padding-right: 16px;
 }
-.shop-item.is-open .shop-item-desc { display: block; }
 
-.shop-item-desc p {
-  margin: 0 0 10px;
-  font-size: 12px;
+.shop-tile-meta {
+  font-size: 10px;
   color: var(--muted);
-  line-height: 1.65;
-  max-width: 640px;
+  font-style: italic;
+  margin: 0;
 }
-.shop-item-desc p:last-child { margin-bottom: 0; }
 
-.shop-desc-label {
-  display: block;
+.shop-tile-expand {
+  background: none;
+  border: none;
+  padding: 0;
+  margin-top: 6px;
   font-family: Inter, sans-serif;
   font-size: 9px;
-  letter-spacing: .16em;
+  letter-spacing: .1em;
   text-transform: uppercase;
   color: var(--muted);
-  margin-bottom: 4px;
-  opacity: .7;
+  cursor: pointer;
+  text-align: left;
+  transition: color .2s ease;
 }
+.shop-tile-expand:hover { color: var(--ink); }
+.shop-tile.is-open .shop-tile-expand { color: var(--ink); }
+
+.shop-tile-desc {
+  display: none;
+  margin-top: 8px;
+  flex-direction: column;
+  gap: 6px;
+}
+.shop-tile.is-open .shop-tile-desc { display: flex; }
+
+.shop-tile-desc p {
+  margin: 0;
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.shop-tile-pairs { font-style: italic; }
+
+.shop-link {
+  font-family: Inter, sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--gold);
+  text-decoration: none;
+  letter-spacing: .06em;
+  margin-top: 2px;
+  transition: color .2s ease;
+  display: inline-block;
+}
+.shop-link:hover { color: var(--ink); }
 
 .empty-state { color: var(--muted); font-size: 13px; }
 .hidden { display: none !important; }
@@ -1150,6 +1262,7 @@ select { cursor: pointer; }
   .item-form-fields { grid-template-columns: 1fr; }
   .style-boards-head { flex-direction: column; }
   .style-boards-head h2 { font-size: 56px; }
+  .wardrobe-title, .wardrobe-subtitle { font-size: 44px; }
   .style-boards-subhead { font-size: 16px; }
   .new-board-btn { margin-top: 0; }
   .style-boards-grid { grid-template-columns: 1fr; }
