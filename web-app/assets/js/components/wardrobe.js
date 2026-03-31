@@ -79,7 +79,10 @@ export function renderWardrobe() {
       <!-- Controls bar -->
       <div class="wardrobe-controls">
         <div class="filter-bar" id="filter-bar" role="group" aria-label="Filter by category">${pills}<button type="button" class="add-piece-btn" id="add-piece-toggle">+ Add piece</button></div>
-        <button type="button" class="refine-btn" id="refine-btn" title="AI analyses your wardrobe and suggests up to 3 highly intentional additions — with specific brands, price ranges, and outfit pairings.">Refine</button>
+        <div class="refine-btn-wrap">
+          <button type="button" class="refine-btn" id="refine-btn">Refine</button>
+          <div class="refine-tooltip">AI analyses your wardrobe and suggests up to 3 highly intentional additions — with specific brands, price ranges, and outfit pairings.</div>
+        </div>
       </div>
 
       <!-- Refine panel -->

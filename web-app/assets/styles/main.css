@@ -282,6 +282,45 @@ body {
 
 .refine-btn:hover { color: var(--ink); }
 
+.refine-btn-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.refine-tooltip {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 10px);
+  width: 240px;
+  background: var(--ink);
+  color: #fff;
+  font-family: Inter, sans-serif;
+  font-size: 11px;
+  line-height: 1.6;
+  padding: 10px 12px;
+  border-radius: 6px;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity .2s ease, transform .2s ease;
+  z-index: 20;
+}
+
+.refine-tooltip::before {
+  content: "";
+  position: absolute;
+  top: -5px;
+  right: 12px;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 5px solid var(--ink);
+}
+
+.refine-btn-wrap:hover .refine-tooltip {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 /* ── Refine panel ───────────────────────────────────────────────── */
 .refine-panel {
   max-width: 1200px;
