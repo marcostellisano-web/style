@@ -652,11 +652,6 @@ ${summary}`;
   }
 
   refineBtn?.addEventListener("click", () => {
-    if (!refinePanel.classList.contains("hidden")) {
-      refinePanel.classList.add("hidden");
-      refineContent.innerHTML = "";
-      return;
-    }
     const key = getApiKey();
     if (!key) {
       refinePanel.classList.remove("hidden");
@@ -664,6 +659,8 @@ ${summary}`;
       refineKeyInput.focus();
       return;
     }
+    // If already running (loading state), do nothing
+    if (refineContent.querySelector(".refine-loading")) return;
     runRefine(key);
   });
 
