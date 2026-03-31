@@ -112,6 +112,73 @@ body {
   border-bottom: 1px solid var(--line);
 }
 
+/* ── Wardrobe hero ──────────────────────────────────────────────── */
+.wardrobe-hero {
+  padding: 36px 0 28px;
+}
+
+.wardrobe-kicker {
+  font-family: Inter, sans-serif;
+  font-size: 9px;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  color: #b79a6f;
+  margin: 0 0 10px;
+}
+
+.wardrobe-title {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 64px;
+  font-weight: 400;
+  color: var(--ink);
+  margin: 0;
+  line-height: 1;
+}
+
+.wardrobe-subtitle {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 64px;
+  font-weight: 400;
+  font-style: italic;
+  color: var(--muted);
+  margin: 0 0 18px;
+  line-height: 1;
+}
+
+.wardrobe-desc {
+  font-size: 13px;
+  color: var(--muted);
+  max-width: 520px;
+  line-height: 1.65;
+  margin: 0;
+}
+
+/* ── Anchor banner ──────────────────────────────────────────────── */
+.anchor-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.anchor-banner strong { color: var(--ink); }
+
+.anchor-banner button {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-size: 11px;
+  color: var(--muted);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color .2s;
+}
+.anchor-banner button:hover { color: var(--ink); }
+
 /* ── Wardrobe: top controls ─────────────────────────────────────── */
 .wardrobe-controls {
   display: flex;
@@ -462,6 +529,13 @@ select { cursor: pointer; }
 
 .wardrobe-card:hover .wardrobe-photo,
 .wardrobe-card.is-active .wardrobe-photo { background: #eeeae5; }
+
+.wardrobe-card.is-anchored .wardrobe-photo {
+  outline: 2px solid var(--gold);
+  outline-offset: -2px;
+}
+
+.wardrobe-card.is-anchored .item-name { color: var(--gold); }
 
 .wardrobe-photo img {
   width: 100%;
@@ -1143,6 +1217,7 @@ select { cursor: pointer; }
   .item-form-fields { grid-template-columns: 1fr; }
   .style-boards-head { flex-direction: column; }
   .style-boards-head h2 { font-size: 56px; }
+  .wardrobe-title, .wardrobe-subtitle { font-size: 44px; }
   .style-boards-subhead { font-size: 16px; }
   .new-board-btn { margin-top: 0; }
   .style-boards-grid { grid-template-columns: 1fr; }

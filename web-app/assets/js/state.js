@@ -203,5 +203,6 @@ export const state = {
       ]
     }
   ],
-  activeFilter: "all"
+  activeFilter: "all",
+  anchoredItem: null
 };
