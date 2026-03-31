@@ -206,10 +206,10 @@ body {
   grid-template-columns: 110px 1fr;
   gap: 16px;
   align-items: start;
-  background: var(--card-bg);
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  padding: 18px;
+  background: rgba(247, 245, 242, 0.96);
+  border: none;
+  border-bottom: 1px solid var(--line);
+  padding: 18px 0;
   max-width: 560px;
 }
 
@@ -265,6 +265,38 @@ input, textarea, select {
 
 textarea { resize: vertical; }
 select { cursor: pointer; }
+
+/* Add-piece form: match hover panel typography */
+.item-form input,
+.item-form textarea,
+.item-form select {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 14px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  padding: 6px 2px;
+  color: var(--ink);
+}
+
+.item-form input::placeholder,
+.item-form textarea::placeholder {
+  color: var(--muted);
+  font-style: italic;
+}
+
+.item-form input[name="name"] {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.item-form input:focus,
+.item-form textarea:focus,
+.item-form select:focus {
+  outline: none;
+  border-bottom-color: var(--ink);
+}
 
 .form-actions {
   display: flex;
