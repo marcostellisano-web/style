@@ -158,6 +158,7 @@ export const state = {
   generated: [],
   savedLooks: [],
   shoppingList: [],
+  refineList: [],
   styleBoards: [
     {
       id: createId(),

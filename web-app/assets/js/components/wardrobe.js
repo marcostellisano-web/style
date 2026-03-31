@@ -195,7 +195,7 @@ export function renderWardrobe() {
 
 // ── Init ───────────────────────────────────────────────────────────
 
-export function initWardrobe(state) {
+export function initWardrobe(state, { onRefine } = {}) {
 
   // ── Add panel ────────────────────────────────────────────────────
   const grid        = document.querySelector("#wardrobe-grid");
@@ -517,6 +517,8 @@ Return ONLY valid JSON in this format, no other text:
   "suggestions": [
     {
       "item": "specific item name",
+      "brand": "one or two specific brand recommendations (e.g. COS, Arket, A.P.C.)",
+      "price_range": "approximate price range (e.g. $80–$140)",
       "why": "why this matters for this wardrobe",
       "pairs_with": "what it pairs with from their wardrobe"
     }
@@ -557,10 +559,21 @@ ${summary}`;
       refineContent.innerHTML = `<p class="refine-empty">No suggestions returned.</p>`;
       return;
     }
+
+    // Push to shopping list
+    state.refineList = results.suggestions.map(s => ({
+      item:        s.item,
+      brand:       s.brand || "",
+      price_range: s.price_range || "",
+      searchUrl:   `https://www.google.com/search?q=${encodeURIComponent(`${s.item} ${s.brand || ""}`.trim())}&tbm=shop`
+    }));
+    onRefine?.();
+
     refineContent.innerHTML = `<div class="refine-suggestions">${
       results.suggestions.map(s => `
         <div class="refine-suggestion">
           <h3 class="refine-item">${s.item}</h3>
+          <p class="refine-meta">${s.brand ? `<span class="refine-brand">${s.brand}</span>` : ""}${s.price_range ? `<span class="refine-price">${s.price_range}</span>` : ""}</p>
           <p class="refine-why"><span class="refine-label">Why it matters</span>${s.why}</p>
           <p class="refine-pairs"><span class="refine-label">Pairs with</span>${s.pairs_with}</p>
         </div>`).join("")
