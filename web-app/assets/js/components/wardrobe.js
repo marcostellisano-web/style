@@ -1,6 +1,18 @@
 import { saveWardrobe } from "../state.js";
 
 const CATEGORIES = ["All Pieces", "Tops", "Bottoms", "Statement", "Outerwear", "Footwear", "Accessories"];
+
+const CATEGORY_CLASS = {
+  Tops:        "wardrobe-card--tops",
+  Bottoms:     "wardrobe-card--bottoms",
+  Outerwear:   "wardrobe-card--outerwear",
+  Footwear:    "wardrobe-card--footwear",
+  Accessories: "wardrobe-card--accessories",
+  Statement:   "wardrobe-card--statement",
+};
+
+// Subtle fixed rotations — consistent across re-renders, alternating left/right
+const ROTATIONS = [-2, 1.5, -1, 2.5, -1.5, 1, -2.5, 2, -1, 1.5, -2, 1, -1.5, 2.5, -1, 2];
 const ITEM_CATEGORIES = CATEGORIES.slice(1); // excludes "All Pieces"
 
 const UPLOAD_ICON = `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>`;
@@ -419,8 +431,11 @@ export function initWardrobe(state) {
       return;
     }
 
-    grid.innerHTML = items.map(item => `
-      <article class="wardrobe-card">
+    grid.innerHTML = items.map((item, index) => {
+      const catClass = CATEGORY_CLASS[item.category] ?? "";
+      const rotate   = ROTATIONS[index % ROTATIONS.length];
+      return `
+      <article class="wardrobe-card ${catClass}" style="--card-rotate: ${rotate}deg">
         <div class="wardrobe-photo">
           ${item.photo
             ? `<img src="${item.photo}" alt="${item.name}" loading="lazy" />`
@@ -437,8 +452,8 @@ export function initWardrobe(state) {
             ${item.description ? `<p class="item-desc">${item.description}</p>` : ""}
           </div>
         </div>
-      </article>`
-    ).join("");
+      </article>`;
+    }).join("");
   }
 
   renderGrid();
