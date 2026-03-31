@@ -1,4 +1,4 @@
-import { saveWardrobe } from "../state.js";
+import { saveWardrobe, saveRefineList } from "../state.js";
 
 const CATEGORIES = ["All Pieces", "Tops", "Bottoms", "Statement", "Outerwear", "Footwear", "Accessories"];
 
@@ -571,6 +571,7 @@ ${summary}`;
       pairs_with:  s.pairs_with || "",
       searchUrl:   `https://www.google.com/search?q=${encodeURIComponent(`${s.item} ${s.brand || ""}`.trim())}&tbm=shop`
     }));
+    saveRefineList(state.refineList);
     onRefine?.();
 
     refineContent.innerHTML = `<div class="refine-suggestions">${

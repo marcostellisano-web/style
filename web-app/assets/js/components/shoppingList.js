@@ -1,5 +1,7 @@
 const CATEGORY_ORDER = ["Tops", "Bottoms", "Outerwear", "Footwear", "Accessories", "Statement", "Other"];
 
+import { saveRefineList } from "../state.js";
+
 export function renderShoppingList() {
   return `
     <section class="tab-panel app-section" id="shopping-list">
@@ -62,6 +64,7 @@ export function initShoppingList(state) {
     if (deleteBtn) {
       const idx = parseInt(deleteBtn.dataset.idx, 10);
       state.refineList.splice(idx, 1);
+      saveRefineList(state.refineList);
       refresh();
       return;
     }

@@ -153,12 +153,32 @@ export function saveWardrobe(wardrobe) {
   }
 }
 
+const REFINE_KEY = "curato_refine_list_v1";
+
+function loadRefineList() {
+  try {
+    const saved = localStorage.getItem(REFINE_KEY);
+    if (saved) return JSON.parse(saved);
+  } catch {
+    // corrupted — fall through
+  }
+  return [];
+}
+
+export function saveRefineList(list) {
+  try {
+    localStorage.setItem(REFINE_KEY, JSON.stringify(list));
+  } catch {
+    // storage full or unavailable — silently skip
+  }
+}
+
 export const state = {
   wardrobe: loadWardrobe(),
   generated: [],
   savedLooks: [],
   shoppingList: [],
-  refineList: [],
+  refineList: loadRefineList(),
   styleBoards: [
     {
       id: createId(),
