@@ -457,9 +457,6 @@ export function initWardrobe(state) {
           <button class="card-edit-btn" data-id="${item.id}" type="button" aria-label="Edit ${item.name}">
             ${EDIT_ICON}
           </button>
-        </div>
-        <div class="wardrobe-info">
-          <h3 class="item-name">${item.name}</h3>
           <div class="wardrobe-hover-info">
             <div class="item-rating-row">
               <span class="rating-badge ${ratingClass(item.rating)}">${item.rating}/10</span>
@@ -467,6 +464,9 @@ export function initWardrobe(state) {
             </div>
             ${item.description ? `<p class="item-desc">${item.description}</p>` : ""}
           </div>
+        </div>
+        <div class="wardrobe-info">
+          <h3 class="item-name">${item.name}</h3>
         </div>
       </article>`
     ).join("");

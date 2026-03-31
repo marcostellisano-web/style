@@ -324,7 +324,7 @@ select { cursor: pointer; }
   opacity: .3;
 }
 
-/* ── Card info (name always, rating+desc on hover) ───────────── */
+/* ── Card info ───────────────────────────────────────────────── */
 .wardrobe-info {
   padding: 12px 6px 0;
   text-align: center;
@@ -339,24 +339,23 @@ select { cursor: pointer; }
   line-height: 1.3;
 }
 
-/* Absolutely positioned so it never affects grid row height */
+/* Slide-up panel inside the photo tile */
 .wardrobe-hover-info {
   position: absolute;
+  bottom: 0;
   left: 0;
   right: 0;
-  background: #fff;
-  padding: 6px 10px 14px;
+  background: rgba(247, 245, 242, 0.96);
+  padding: 16px 14px 18px;
   text-align: center;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity .18s ease;
-  z-index: 10;
+  transform: translateY(100%);
+  transition: transform .35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  z-index: 5;
 }
 
 .wardrobe-card:hover .wardrobe-hover-info,
 .wardrobe-card.is-active .wardrobe-hover-info {
-  opacity: 1;
-  pointer-events: auto;
+  transform: translateY(0);
 }
 
 .item-rating-row {
