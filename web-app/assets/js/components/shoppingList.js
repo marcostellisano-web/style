@@ -42,14 +42,14 @@ export function initShoppingList(state) {
             <div class="shop-item" data-category="${cat}" data-index="${items.indexOf(s)}">
               <div class="shop-item-main">
                 <div class="shop-item-left">
-                  <span class="shop-item-name">${s.item}</span>
+                  <div class="shop-item-name-row">
+                    <span class="shop-item-name">${s.item}</span>
+                    <a class="shop-link" href="${s.searchUrl}" target="_blank" rel="noopener">Shop →</a>
+                  </div>
+                  <button class="shop-expand-btn" data-idx="${items.indexOf(s)}" type="button">Details</button>
                   <span class="shop-item-meta">${[s.brand, s.price_range].filter(Boolean).join(" · ")}</span>
                 </div>
-                <div class="shop-item-actions">
-                  <a class="shop-link" href="${s.searchUrl}" target="_blank" rel="noopener">Shop →</a>
-                  <button class="shop-expand-btn" data-idx="${items.indexOf(s)}" type="button" aria-label="Show description">Details</button>
-                  <button class="shop-delete-btn" data-idx="${items.indexOf(s)}" type="button" aria-label="Remove">✕</button>
-                </div>
+                <button class="shop-delete-btn" data-idx="${items.indexOf(s)}" type="button" aria-label="Remove">✕</button>
               </div>
               <div class="shop-item-desc">
                 ${s.why ? `<p><span class="shop-desc-label">Why it matters</span>${s.why}</p>` : ""}
