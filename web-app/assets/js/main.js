@@ -40,11 +40,12 @@ document.querySelectorAll(".top-nav-btn").forEach(btn =>
 activateTab("wardrobe");
 
 // ── Init modules ───────────────────────────────────────────────────
-initWardrobe(state);
 initStyleBoards(state);
 
 const { update: updateSavedLooks } = initSavedLooks(state);
 const { refresh: refreshShoppingList } = initShoppingList(state);
+
+initWardrobe(state, { onRefine: () => refreshShoppingList() });
 
 // Generate is wired to saved looks + shopping list via callback
 initGenerate(state, {
