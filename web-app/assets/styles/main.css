@@ -129,43 +129,53 @@ body {
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
-  gap: 10px;
+  gap: 28px;
   flex: 1;
   overflow-x: auto;
   scrollbar-width: none;
+  align-items: center;
 }
 .filter-bar::-webkit-scrollbar { display: none; }
 
 .filter-pill {
-  /* reset */
-  background: transparent;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 3px 11px;
-  font-size: 10px;
-  letter-spacing: .12em;
-  text-transform: uppercase;
+  /* reset button */
+  background: none;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  /* text */
+  font-family: "Cormorant Garamond", serif;
+  font-size: 15px;
   font-weight: 500;
-  cursor: pointer;
+  letter-spacing: .06em;
   color: var(--muted);
-  font-family: Inter, sans-serif;
+  cursor: pointer;
   white-space: nowrap;
   flex-shrink: 0;
   width: auto;
-  transition: background .2s ease, color .2s ease, border-color .2s ease;
+  /* underline animation */
+  position: relative;
+  transition: color .25s ease;
 }
 
-.filter-pill:hover {
-  border-color: #b8b0a6;
-  color: var(--ink);
-  background: #F0EDE9;
+.filter-pill::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 0;
+  height: 1px;
+  background: var(--ink);
+  transition: width .25s ease;
 }
+
+.filter-pill:hover { color: var(--ink); }
+.filter-pill:hover::after { width: 100%; }
 
 .filter-pill.is-active {
-  background: #F0EDE9;
-  border-color: #c5bdb5;
   color: var(--ink);
 }
+.filter-pill.is-active::after { width: 100%; }
 
 .add-piece-btn {
   background: transparent;
