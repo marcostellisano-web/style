@@ -173,22 +173,23 @@ body {
 .filter-pill.is-active::after { width: 100%; }
 
 .add-piece-btn {
-  background: transparent;
-  border: 1px solid var(--line);
-  border-radius: 7px;
-  padding: 6px 14px;
-  font-size: 12px;
+  background: none;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  font-family: "Cormorant Garamond", serif;
+  font-size: 13px;
   font-weight: 500;
+  letter-spacing: .04em;
   cursor: pointer;
-  color: var(--ink);
-  font-family: Inter, sans-serif;
+  color: var(--muted);
   white-space: nowrap;
   flex-shrink: 0;
   width: auto;
-  transition: background .12s, color .12s, border-color .12s;
+  transition: color .2s ease;
 }
 
-.add-piece-btn:hover { background: var(--ink); color: #fff; border-color: var(--ink); }
+.add-piece-btn:hover { color: var(--ink); }
 
 /* ── Add piece panel ────────────────────────────────────────────── */
 .add-piece-panel {

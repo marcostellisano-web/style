@@ -64,8 +64,7 @@ export function renderWardrobe() {
 
       <!-- Controls bar -->
       <div class="wardrobe-controls">
-        <div class="filter-bar" id="filter-bar" role="group" aria-label="Filter by category">${pills}</div>
-        <button type="button" class="add-piece-btn" id="add-piece-toggle">+ Add piece</button>
+        <div class="filter-bar" id="filter-bar" role="group" aria-label="Filter by category">${pills}<button type="button" class="add-piece-btn" id="add-piece-toggle">+ Add piece</button></div>
       </div>
 
       <!-- Add panel -->
