@@ -517,6 +517,7 @@ Return ONLY valid JSON in this format, no other text:
   "suggestions": [
     {
       "item": "specific item name",
+      "category": "one of: Tops, Bottoms, Outerwear, Footwear, Accessories, Statement",
       "brand": "one or two specific brand recommendations (e.g. COS, Arket, A.P.C.)",
       "price_range": "approximate price range (e.g. $80–$140)",
       "why": "why this matters for this wardrobe",
@@ -563,8 +564,11 @@ ${summary}`;
     // Push to shopping list
     state.refineList = results.suggestions.map(s => ({
       item:        s.item,
+      category:    s.category || "Other",
       brand:       s.brand || "",
       price_range: s.price_range || "",
+      why:         s.why || "",
+      pairs_with:  s.pairs_with || "",
       searchUrl:   `https://www.google.com/search?q=${encodeURIComponent(`${s.item} ${s.brand || ""}`.trim())}&tbm=shop`
     }));
     onRefine?.();
