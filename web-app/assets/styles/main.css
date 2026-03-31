@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&display=swap');
 
 :root {
   --paper: #F7F5F2;
@@ -129,7 +129,7 @@ body {
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
-  gap: 6px;
+  gap: 10px;
   flex: 1;
   overflow-x: auto;
   scrollbar-width: none;
@@ -141,9 +141,9 @@ body {
   background: transparent;
   border: 1px solid var(--line);
   border-radius: 999px;
-  padding: 5px 14px;
-  font-size: 10.5px;
-  letter-spacing: .13em;
+  padding: 3px 11px;
+  font-size: 10px;
+  letter-spacing: .12em;
   text-transform: uppercase;
   font-weight: 500;
   cursor: pointer;
@@ -152,15 +152,19 @@ body {
   white-space: nowrap;
   flex-shrink: 0;
   width: auto;
-  transition: background .12s, color .12s, border-color .12s;
+  transition: background .2s ease, color .2s ease, border-color .2s ease;
 }
 
-.filter-pill:hover { border-color: #a09990; color: var(--ink); }
+.filter-pill:hover {
+  border-color: #b8b0a6;
+  color: var(--ink);
+  background: #F0EDE9;
+}
 
 .filter-pill.is-active {
-  background: var(--ink);
-  border-color: var(--ink);
-  color: #fff;
+  background: #F0EDE9;
+  border-color: #c5bdb5;
+  color: var(--ink);
 }
 
 .add-piece-btn {
@@ -341,7 +345,7 @@ select { cursor: pointer; }
 
 .item-name {
   margin: 0;
-  font-family: "Playfair Display", serif;
+  font-family: "Cormorant Garamond", serif;
   font-size: 15px;
   font-weight: 500;
   color: var(--ink);
@@ -402,7 +406,7 @@ select { cursor: pointer; }
 /* ── Other sections ─────────────────────────────────────────────── */
 .section-head h2 {
   margin: 0;
-  font-family: "Playfair Display", serif;
+  font-family: "Cormorant Garamond", serif;
   font-size: 32px;
   font-weight: 500;
 }
@@ -421,7 +425,7 @@ select { cursor: pointer; }
 .outfit-results { display: grid; grid-template-columns: repeat(3, minmax(220px, 1fr)); gap: 14px; }
 .outfit-card { background: #f9f7f4; border: 1px solid var(--line); border-radius: 10px; padding: 14px; font-size: 13px; }
 .outfit-card header { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
-.outfit-card h3 { margin: 0; font-size: 17px; font-family: "Playfair Display", serif; }
+.outfit-card h3 { margin: 0; font-size: 17px; font-family: "Cormorant Garamond", serif; }
 .outfit-items { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 10px 0; }
 .outfit-item { text-align: center; }
 .outfit-item img, .outfit-item .silhouette { width: 100%; aspect-ratio: 1/1; display: block; border-radius: 5px; }
@@ -453,7 +457,7 @@ select { cursor: pointer; }
 
 .style-boards-head h2 {
   margin: 4px 0 10px;
-  font-family: "Playfair Display", serif;
+  font-family: "Cormorant Garamond", serif;
   font-size: 64px;
   line-height: .95;
   font-weight: 400;
@@ -542,7 +546,7 @@ select { cursor: pointer; }
 
 .board-header h3 {
   margin: 0;
-  font-family: "Playfair Display", serif;
+  font-family: "Cormorant Garamond", serif;
   font-size: 44px;
   line-height: .95;
   font-weight: 500;
@@ -644,7 +648,7 @@ select { cursor: pointer; }
 
 .saved-looks-list, .shopping-list-items { display: grid; gap: 8px; }
 .saved-look, .shop-row { border: 1px solid var(--line); border-radius: 7px; padding: 10px 12px; background: #f9f7f4; font-size: 13px; }
-.saved-look h3 { margin: 0 0 3px; font-family: "Playfair Display", serif; font-size: 18px; }
+.saved-look h3 { margin: 0 0 3px; font-family: "Cormorant Garamond", serif; font-size: 18px; }
 .saved-look p  { margin: 0; font-size: 12px; color: var(--muted); }
 .shop-row { display: grid; grid-template-columns: 2fr 1fr auto; gap: 8px; align-items: center; }
 #shopping-export { width: 100%; min-height: 100px; margin-top: 10px; font-size: 13px; }
@@ -732,7 +736,7 @@ select { cursor: pointer; }
 .edit-modal-header { margin-bottom: 22px; }
 
 .edit-title {
-  font-family: "Playfair Display", serif;
+  font-family: "Cormorant Garamond", serif;
   font-size: 28px;
   font-weight: 500;
   margin: 0 0 4px;
