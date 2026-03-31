@@ -448,11 +448,8 @@ export function initWardrobe(state) {
       return;
     }
 
-    grid.innerHTML = items.map((item, index) => {
-      const catClass = CATEGORY_CLASS[item.category] ?? "";
-      const rotate   = ROTATIONS[index % ROTATIONS.length];
-      return `
-      <article class="wardrobe-card ${catClass}" style="--card-rotate: ${rotate}deg">
+    grid.innerHTML = items.map((item, index) => `
+      <article class="wardrobe-card">
         <div class="wardrobe-photo">
           ${item.photo
             ? `<img src="${item.photo}" alt="${item.name}" loading="lazy" />`
@@ -460,8 +457,10 @@ export function initWardrobe(state) {
           <button class="card-edit-btn" data-id="${item.id}" type="button" aria-label="Edit ${item.name}">
             ${EDIT_ICON}
           </button>
-          <div class="wardrobe-meta">
-            <h3 class="item-name">${item.name}</h3>
+        </div>
+        <div class="wardrobe-info">
+          <h3 class="item-name">${item.name}</h3>
+          <div class="wardrobe-hover-info">
             <div class="item-rating-row">
               <span class="rating-badge ${ratingClass(item.rating)}">${item.rating}/10</span>
               <span class="rating-label">${ratingLabel(item.rating)}</span>
@@ -469,8 +468,8 @@ export function initWardrobe(state) {
             ${item.description ? `<p class="item-desc">${item.description}</p>` : ""}
           </div>
         </div>
-      </article>`;
-    }).join("");
+      </article>`
+    ).join("");
   }
 
   renderGrid();

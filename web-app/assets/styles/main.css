@@ -278,52 +278,35 @@ select { cursor: pointer; }
   cursor: pointer;
 }
 
-/* ── Wardrobe collage grid ──────────────────────────────────────── */
+/* ── Wardrobe grid ─────────────────────────────────────────────── */
 .wardrobe-grid {
   display: grid;
-  grid-template-columns: repeat(10, 1fr);
-  grid-auto-rows: 65px;
-  grid-auto-flow: dense;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 8px;
-  padding-bottom: 60px;
+  padding-bottom: 40px;
 }
 
-/* ── Wardrobe card ──────────────────────────────────────────────── */
+/* ── Wardrobe card ─────────────────────────────────────────────── */
 .wardrobe-card {
   background: transparent;
   border: none;
-  border-radius: 0;
-  overflow: visible;
-  position: relative;
-  transform: rotate(var(--card-rotate, 0deg));
-  transition: transform .25s ease;
-  z-index: 1;
+  cursor: pointer;
 }
-
-.wardrobe-card:hover,
-.wardrobe-card.is-active {
-  transform: rotate(0deg) scale(1.06);
-  z-index: 20;
-}
-
-/* Category sizing — mirrors the collage proportions in the inspo images */
-.wardrobe-card--bottoms     { grid-column: span 2; grid-row: span 3; }
-.wardrobe-card--tops        { grid-column: span 2; grid-row: span 3; }
-.wardrobe-card--outerwear   { grid-column: span 2; grid-row: span 3; }
-.wardrobe-card--footwear    { grid-column: span 1; grid-row: span 2; }
-.wardrobe-card--accessories { grid-column: span 2; grid-row: span 2; }
-.wardrobe-card--statement   { grid-column: span 2; grid-row: span 3; }
 
 .wardrobe-photo {
-  background: transparent;
-  width: 100%;
-  height: 100%;
+  background: #f7f5f2;
+  aspect-ratio: 4 / 5;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 20px;
   overflow: hidden;
   position: relative;
+  transition: background .15s;
 }
+
+.wardrobe-card:hover .wardrobe-photo,
+.wardrobe-card.is-active .wardrobe-photo { background: #eeeae5; }
 
 .wardrobe-photo img {
   width: 100%;
@@ -340,36 +323,40 @@ select { cursor: pointer; }
   opacity: .3;
 }
 
-/* ── Hover overlay (rating + description) ───────────────────────── */
-.wardrobe-meta {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 36px 12px 14px;
-  background: linear-gradient(to top, rgba(0,0,0,.72) 0%, transparent 100%);
-  opacity: 0;
-  transition: opacity .2s ease;
-  pointer-events: none;
+/* ── Card info (name always, rating+desc on hover) ───────────── */
+.wardrobe-info {
+  padding: 12px 6px 16px;
+  text-align: center;
 }
 
-.wardrobe-card:hover .wardrobe-meta,
-.wardrobe-card.is-active .wardrobe-meta { opacity: 1; }
-
 .item-name {
-  margin: 0 0 6px;
+  margin: 0;
   font-family: "Cormorant Garamond", serif;
   font-size: 15px;
   font-weight: 500;
-  line-height: 1.2;
-  color: #fff;
+  color: var(--ink);
+  line-height: 1.3;
+}
+
+.wardrobe-hover-info {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height .25s ease, opacity .2s ease;
+}
+
+.wardrobe-card:hover .wardrobe-hover-info,
+.wardrobe-card.is-active .wardrobe-hover-info {
+  max-height: 120px;
+  opacity: 1;
 }
 
 .item-rating-row {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
-  margin-bottom: 5px;
+  margin: 8px 0 5px;
 }
 
 .rating-badge {
@@ -386,14 +373,14 @@ select { cursor: pointer; }
 
 .rating-label {
   font-size: 11px;
-  color: rgba(255,255,255,.7);
+  color: var(--muted);
 }
 
 .item-desc {
   margin: 0;
   font-size: 11px;
   line-height: 1.5;
-  color: rgba(255,255,255,.75);
+  color: var(--muted);
 }
 
 /* ── Other sections ─────────────────────────────────────────────── */
@@ -890,16 +877,8 @@ select { cursor: pointer; }
   .new-board-btn { margin-top: 0; }
   .style-boards-grid { grid-template-columns: 1fr; }
   .outfit-results { grid-template-columns: 1fr; }
-  .wardrobe-grid { grid-template-columns: repeat(6, 1fr); grid-auto-rows: 60px; gap: 6px; }
-  .wardrobe-card--bottoms  { grid-column: span 2; grid-row: span 3; }
-  .wardrobe-card--tops     { grid-column: span 2; grid-row: span 3; }
-  .wardrobe-card--outerwear { grid-column: span 2; grid-row: span 3; }
-  .wardrobe-card--footwear  { grid-column: span 1; grid-row: span 2; }
-  .wardrobe-card--accessories { grid-column: span 2; grid-row: span 2; }
-  .wardrobe-card--statement  { grid-column: span 2; grid-row: span 3; }
 }
 
 @media (max-width: 560px) {
   .top-nav-btn { padding: 5px 8px; font-size: 9.5px; }
-  .wardrobe-grid { grid-template-columns: repeat(4, 1fr); grid-auto-rows: 55px; gap: 6px; }
 }
