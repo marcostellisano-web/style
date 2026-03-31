@@ -191,6 +191,99 @@ body {
 
 .add-piece-btn:hover { color: var(--ink); }
 
+/* ── Refine button ──────────────────────────────────────────────── */
+.refine-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: "Cormorant Garamond", serif;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: .04em;
+  color: var(--muted);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: color .2s ease;
+}
+
+.refine-btn:hover { color: var(--ink); }
+
+/* ── Refine panel ───────────────────────────────────────────────── */
+.refine-panel {
+  max-width: 1200px;
+  margin: 0 auto 28px;
+  padding: 28px 0 24px;
+  border-bottom: 1px solid var(--line);
+}
+
+.refine-key-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  max-width: 440px;
+}
+
+.refine-key-row input {
+  flex: 1;
+  font-family: Inter, sans-serif;
+  font-size: 12px;
+}
+
+.refine-key-row button {
+  font: inherit;
+  font-size: 12px;
+  padding: 6px 14px;
+  background: var(--ink);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  width: auto;
+}
+
+.refine-suggestions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+}
+
+.refine-item {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--ink);
+  margin: 0 0 12px;
+  line-height: 1.2;
+}
+
+.refine-label {
+  display: block;
+  font-family: Inter, sans-serif;
+  font-size: 9px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.refine-why,
+.refine-pairs {
+  margin: 0 0 14px;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.refine-loading,
+.refine-error,
+.refine-empty {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 15px;
+  font-style: italic;
+  color: var(--muted);
+}
+
 /* ── Add piece panel ────────────────────────────────────────────── */
 .add-piece-panel {
   margin-bottom: 24px;

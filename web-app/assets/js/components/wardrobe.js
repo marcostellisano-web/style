@@ -65,6 +65,16 @@ export function renderWardrobe() {
       <!-- Controls bar -->
       <div class="wardrobe-controls">
         <div class="filter-bar" id="filter-bar" role="group" aria-label="Filter by category">${pills}<button type="button" class="add-piece-btn" id="add-piece-toggle">+ Add piece</button></div>
+        <button type="button" class="refine-btn" id="refine-btn">Refine</button>
+      </div>
+
+      <!-- Refine panel -->
+      <div id="refine-panel" class="refine-panel hidden">
+        <div id="refine-key-row" class="refine-key-row hidden">
+          <input type="password" id="refine-api-key" placeholder="Enter Claude API key to continue" />
+          <button type="button" id="refine-key-save">Go</button>
+        </div>
+        <div id="refine-content" class="refine-content"></div>
       </div>
 
       <!-- Add panel -->
@@ -472,4 +482,119 @@ export function initWardrobe(state) {
   }
 
   renderGrid();
+
+  // ── Refine ─────────────────────────────────────────────────────────
+  const refineBtn     = document.querySelector("#refine-btn");
+  const refinePanel   = document.querySelector("#refine-panel");
+  const refineContent = document.querySelector("#refine-content");
+  const refineKeyRow  = document.querySelector("#refine-key-row");
+  const refineKeyInput= document.querySelector("#refine-api-key");
+  const refineKeySave = document.querySelector("#refine-key-save");
+  const API_KEY_STORE = "curato_claude_key";
+
+  function getApiKey() { return localStorage.getItem(API_KEY_STORE) || ""; }
+  function storeApiKey(key) { localStorage.setItem(API_KEY_STORE, key); }
+
+  async function callRefine(apiKey) {
+    const summary = state.wardrobe.map(item =>
+      `- ${item.name} (${item.category}${item.brand ? `, ${item.brand}` : ""}, ${item.color})${item.description ? `: ${item.description}` : ""}`
+    ).join("\n");
+
+    const prompt = `You are a high-end personal stylist focused on refined, modern, minimalist fashion.
+
+Your job is to analyze a user's wardrobe and suggest a SMALL number of highly intentional additions that will significantly improve outfit versatility, cohesion, and overall refinement.
+
+Avoid generic suggestions. Every recommendation must:
+- be specific and clearly named
+- connect directly to the existing wardrobe
+- explain WHY it adds value
+- explain WHAT outfits it unlocks or improves
+
+Suggest exactly 3 items maximum.
+
+Return ONLY valid JSON in this format, no other text:
+{
+  "suggestions": [
+    {
+      "item": "specific item name",
+      "why": "why this matters for this wardrobe",
+      "pairs_with": "what it pairs with from their wardrobe"
+    }
+  ]
+}
+
+The wardrobe:
+${summary}`;
+
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true"
+      },
+      body: JSON.stringify({
+        model: "claude-opus-4-6",
+        max_tokens: 1024,
+        messages: [{ role: "user", content: prompt }]
+      })
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || `API error ${res.status}`);
+    }
+    const data = await res.json();
+    return JSON.parse(data.content[0]?.text || "{}");
+  }
+
+  function renderRefineResults(results) {
+    if (!results.suggestions?.length) {
+      refineContent.innerHTML = `<p class="refine-empty">No suggestions returned.</p>`;
+      return;
+    }
+    refineContent.innerHTML = `<div class="refine-suggestions">${
+      results.suggestions.map(s => `
+        <div class="refine-suggestion">
+          <h3 class="refine-item">${s.item}</h3>
+          <p class="refine-why"><span class="refine-label">Why it matters</span>${s.why}</p>
+          <p class="refine-pairs"><span class="refine-label">Pairs with</span>${s.pairs_with}</p>
+        </div>`).join("")
+    }</div>`;
+  }
+
+  async function runRefine(apiKey) {
+    refinePanel.classList.remove("hidden");
+    refineKeyRow.classList.add("hidden");
+    refineContent.innerHTML = `<p class="refine-loading">Analysing your wardrobe…</p>`;
+    try {
+      renderRefineResults(await callRefine(apiKey));
+    } catch (err) {
+      refineContent.innerHTML = `<p class="refine-error">${err.message}</p>`;
+    }
+  }
+
+  refineBtn?.addEventListener("click", () => {
+    if (!refinePanel.classList.contains("hidden")) {
+      refinePanel.classList.add("hidden");
+      refineContent.innerHTML = "";
+      return;
+    }
+    const key = getApiKey();
+    if (!key) {
+      refinePanel.classList.remove("hidden");
+      refineKeyRow.classList.remove("hidden");
+      refineKeyInput.focus();
+      return;
+    }
+    runRefine(key);
+  });
+
+  refineKeySave?.addEventListener("click", () => {
+    const key = refineKeyInput.value.trim();
+    if (!key) return;
+    storeApiKey(key);
+    runRefine(key);
+  });
 }
