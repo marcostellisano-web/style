@@ -46,8 +46,10 @@ export function initShoppingList(state) {
                     <span class="shop-item-name">${s.item}</span>
                     <a class="shop-link" href="${s.searchUrl}" target="_blank" rel="noopener">Shop →</a>
                   </div>
-                  <button class="shop-expand-btn" data-idx="${items.indexOf(s)}" type="button">Details</button>
-                  <span class="shop-item-meta">${[s.brand, s.price_range].filter(Boolean).join(" · ")}</span>
+                  <div class="shop-item-sub">
+                    <button class="shop-expand-btn" data-idx="${items.indexOf(s)}" type="button">Details</button>
+                    <span class="shop-item-meta">${[s.brand, s.price_range].filter(Boolean).join(" · ")}</span>
+                  </div>
                 </div>
                 <button class="shop-delete-btn" data-idx="${items.indexOf(s)}" type="button" aria-label="Remove">✕</button>
               </div>
