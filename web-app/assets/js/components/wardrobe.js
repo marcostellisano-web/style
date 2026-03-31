@@ -1,6 +1,18 @@
 import { saveWardrobe } from "../state.js";
 
 const CATEGORIES = ["All Pieces", "Tops", "Bottoms", "Statement", "Outerwear", "Footwear", "Accessories"];
+
+const CATEGORY_CLASS = {
+  Tops:        "wardrobe-card--tops",
+  Bottoms:     "wardrobe-card--bottoms",
+  Outerwear:   "wardrobe-card--outerwear",
+  Footwear:    "wardrobe-card--footwear",
+  Accessories: "wardrobe-card--accessories",
+  Statement:   "wardrobe-card--statement",
+};
+
+// Subtle fixed rotations — consistent across re-renders, alternating left/right
+const ROTATIONS = [-2, 1.5, -1, 2.5, -1.5, 1, -2.5, 2, -1, 1.5, -2, 1, -1.5, 2.5, -1, 2];
 const ITEM_CATEGORIES = CATEGORIES.slice(1); // excludes "All Pieces"
 
 const UPLOAD_ICON = `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>`;
@@ -408,10 +420,27 @@ export function initWardrobe(state) {
     }
   });
 
+  // Round-robin interleave by category so "All Pieces" feels organic
+  function interleave(items) {
+    const groups = {};
+    items.forEach(item => {
+      (groups[item.category] ??= []).push(item);
+    });
+    const queues = Object.values(groups);
+    const result = [];
+    let added = true;
+    while (added) {
+      added = false;
+      queues.forEach(q => { if (q.length) { result.push(q.shift()); added = true; } });
+    }
+    return result;
+  }
+
   function renderGrid() {
-    const items = state.activeFilter === "all"
+    const raw = state.activeFilter === "all"
       ? state.wardrobe
       : state.wardrobe.filter(i => i.category === state.activeFilter);
+    const items = state.activeFilter === "all" ? interleave(raw) : raw;
 
     if (!items.length) {
       const label = state.activeFilter === "all" ? "items" : state.activeFilter.toLowerCase();
@@ -419,7 +448,7 @@ export function initWardrobe(state) {
       return;
     }
 
-    grid.innerHTML = items.map(item => `
+    grid.innerHTML = items.map((item, index) => `
       <article class="wardrobe-card">
         <div class="wardrobe-photo">
           ${item.photo
@@ -428,8 +457,10 @@ export function initWardrobe(state) {
           <button class="card-edit-btn" data-id="${item.id}" type="button" aria-label="Edit ${item.name}">
             ${EDIT_ICON}
           </button>
-          <div class="wardrobe-meta">
-            <h3 class="item-name">${item.name}</h3>
+        </div>
+        <div class="wardrobe-info">
+          <h3 class="item-name">${item.name}</h3>
+          <div class="wardrobe-hover-info">
             <div class="item-rating-row">
               <span class="rating-badge ${ratingClass(item.rating)}">${item.rating}/10</span>
               <span class="rating-label">${ratingLabel(item.rating)}</span>

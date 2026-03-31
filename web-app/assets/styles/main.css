@@ -278,32 +278,36 @@ select { cursor: pointer; }
   cursor: pointer;
 }
 
-/* ── Wardrobe grid ──────────────────────────────────────────────── */
+/* ── Wardrobe grid ─────────────────────────────────────────────── */
 .wardrobe-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 8px;
   padding-bottom: 40px;
 }
 
-/* ── Wardrobe card ──────────────────────────────────────────────── */
+/* ── Wardrobe card ─────────────────────────────────────────────── */
 .wardrobe-card {
   background: transparent;
   border: none;
-  border-radius: 0;
-  overflow: visible;
+  cursor: pointer;
   position: relative;
 }
 
 .wardrobe-photo {
-  background: transparent;
+  background: #f7f5f2;
   aspect-ratio: 4 / 5;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 20px;
   overflow: hidden;
   position: relative;
+  transition: background .15s;
 }
+
+.wardrobe-card:hover .wardrobe-photo,
+.wardrobe-card.is-active .wardrobe-photo { background: #eeeae5; }
 
 .wardrobe-photo img {
   width: 100%;
@@ -320,36 +324,47 @@ select { cursor: pointer; }
   opacity: .3;
 }
 
-/* ── Hover overlay (rating + description) ───────────────────────── */
-.wardrobe-meta {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 36px 12px 14px;
-  background: linear-gradient(to top, rgba(0,0,0,.72) 0%, transparent 100%);
-  opacity: 0;
-  transition: opacity .2s ease;
-  pointer-events: none;
+/* ── Card info (name always, rating+desc on hover) ───────────── */
+.wardrobe-info {
+  padding: 12px 6px 0;
+  text-align: center;
 }
 
-.wardrobe-card:hover .wardrobe-meta,
-.wardrobe-card.is-active .wardrobe-meta { opacity: 1; }
-
 .item-name {
-  margin: 0 0 6px;
+  margin: 0;
   font-family: "Cormorant Garamond", serif;
   font-size: 15px;
   font-weight: 500;
-  line-height: 1.2;
-  color: #fff;
+  color: var(--ink);
+  line-height: 1.3;
+}
+
+/* Absolutely positioned so it never affects grid row height */
+.wardrobe-hover-info {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background: #fff;
+  padding: 6px 10px 14px;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .18s ease;
+  z-index: 10;
+}
+
+.wardrobe-card:hover .wardrobe-hover-info,
+.wardrobe-card.is-active .wardrobe-hover-info {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .item-rating-row {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
-  margin-bottom: 5px;
+  margin: 8px 0 5px;
 }
 
 .rating-badge {
@@ -366,14 +381,14 @@ select { cursor: pointer; }
 
 .rating-label {
   font-size: 11px;
-  color: rgba(255,255,255,.7);
+  color: var(--muted);
 }
 
 .item-desc {
   margin: 0;
   font-size: 11px;
   line-height: 1.5;
-  color: rgba(255,255,255,.75);
+  color: var(--muted);
 }
 
 /* ── Other sections ─────────────────────────────────────────────── */
@@ -768,7 +783,7 @@ select { cursor: pointer; }
 .edit-photo-bar {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   padding: 8px 12px;
   background: #fff;
   border-top: 1px solid var(--line);
@@ -824,7 +839,7 @@ select { cursor: pointer; }
 /* Edit actions */
 .edit-actions {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   padding-top: 4px;
 }
 
@@ -870,10 +885,8 @@ select { cursor: pointer; }
   .new-board-btn { margin-top: 0; }
   .style-boards-grid { grid-template-columns: 1fr; }
   .outfit-results { grid-template-columns: 1fr; }
-  .wardrobe-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
 }
 
 @media (max-width: 560px) {
   .top-nav-btn { padding: 5px 8px; font-size: 9.5px; }
-  .wardrobe-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
 }
