@@ -42,11 +42,11 @@ activateTab("wardrobe");
 
 // ── Init modules ───────────────────────────────────────────────────
 initProfile(state);
-initStyleBoards(state);
 
 const { update: updateSavedLooks } = initSavedLooks(state);
 const { refresh: refreshShoppingList } = initShoppingList(state);
 
+initStyleBoards(state, { onSuggest: () => refreshShoppingList() });
 initWardrobe(state, { onRefine: () => refreshShoppingList() });
 
 // Generate auto-saves looks; callback just refreshes saved looks UI

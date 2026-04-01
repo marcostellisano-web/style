@@ -157,7 +157,7 @@ export function renderStyleBoards() {
   `;
 }
 
-export function initStyleBoards(state) {
+export function initStyleBoards(state, { onSuggest } = {}) {
   const form = document.querySelector("#style-board-form");
   const toggleBtn = document.querySelector("#style-board-toggle");
   const cancelBtn = document.querySelector("#style-board-cancel");
@@ -378,9 +378,14 @@ export function initStyleBoards(state) {
       `- "${b.title}"${b.tags?.length ? `: aesthetic keywords — ${b.tags.join(", ")}` : ""}`
     ).join("\n");
 
+    const alreadySuggested = (state.refineList || []).map(i => `- ${i.item}`).join("\n") || "None";
+
     const prompt = `You are a high-end personal stylist. A user has shared their wardrobe and their style boards (mood boards showing the aesthetic they aspire to).
 ${profilePromptLine(state.profile)}
 Your job: identify exactly 2 specific pieces they do NOT yet own that would bridge the gap between their current wardrobe and their style board aesthetic.
+
+Already on their shopping list — do NOT suggest these again:
+${alreadySuggested}
 
 Rules:
 - Do not suggest anything already in the wardrobe
@@ -456,10 +461,13 @@ ${boardsSummary}`;
         if (!existing.has(item.item.toLowerCase())) state.refineList.push(item);
       });
       saveRefineList(state.refineList);
+      onSuggest?.();
 
-      const count = newItems.filter(i => !existing.has(i.item.toLowerCase())).length || newItems.length;
+      const added = newItems.filter(i => !existing.has(i.item.toLowerCase())).length;
       if (fillGapsStatus) {
-        fillGapsStatus.textContent = `${suggestions.length} piece${suggestions.length !== 1 ? "s" : ""} added to your Shopping List.`;
+        fillGapsStatus.textContent = added
+          ? `${added} new piece${added !== 1 ? "s" : ""} added to your Shopping List.`
+          : "No new pieces — all suggestions already on your list.";
         setTimeout(() => { if (fillGapsStatus) fillGapsStatus.textContent = ""; }, 4000);
       }
     } catch (err) {
