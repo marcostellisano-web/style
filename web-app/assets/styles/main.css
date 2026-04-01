@@ -1301,6 +1301,7 @@ select { cursor: pointer; }
   border: none;
   display: flex;
   flex-direction: column;
+  cursor: pointer;
 }
 
 /* Image grid */
@@ -1308,7 +1309,6 @@ select { cursor: pointer; }
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 3px;
-  cursor: pointer;
 }
 
 .board-tile {

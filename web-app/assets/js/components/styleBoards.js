@@ -20,6 +20,11 @@ function escapeHtml(value) {
     .replaceAll("'", "&#39;");
 }
 
+// Encode each path segment so filenames with spaces/+ work as src attributes
+function encodeSrc(path) {
+  return String(path).split("/").map(seg => encodeURIComponent(seg)).join("/");
+}
+
 function titleCase(value) {
   return value
     .split(/\s+/)
@@ -177,19 +182,18 @@ export function initStyleBoards(state) {
         if (!image) return `<div class="board-tile placeholder" aria-hidden="true"></div>`;
         return `<div class="board-tile">${
           index === 5 && extraCount > 0
-            ? `<div class="board-tile-more" data-action="view">+${extraCount}<img src="${escapeHtml(image)}" alt="" loading="lazy" /></div>`
-            : `<img src="${escapeHtml(image)}" alt="${escapeHtml(board.title)} ${index + 1}" loading="lazy" />`
+            ? `<div class="board-tile-more">+${extraCount}<img src="${encodeSrc(image)}" alt="" loading="lazy" /></div>`
+            : `<img src="${encodeSrc(image)}" alt="${escapeHtml(board.title)} ${index + 1}" loading="lazy" />`
         }</div>`;
       }).join("");
 
       return `
         <article class="board-card" data-board-id="${escapeHtml(board.id)}">
-          <div class="board-tiles" data-action="view">${cells}</div>
+          <div class="board-tiles">${cells}</div>
           <div class="board-info">
             <h3 class="board-title">${escapeHtml(board.title)}</h3>
             ${tagLine ? `<p class="board-tags-line">${escapeHtml(tagLine)}</p>` : ""}
             <div class="board-actions-inline">
-              <button type="button" class="board-action" data-action="view">View all ${board.images.length}</button>
               <button type="button" class="board-action" data-action="edit">Edit</button>
               <button type="button" class="board-action remove" data-action="remove">Remove</button>
             </div>
@@ -250,8 +254,10 @@ export function initStyleBoards(state) {
     if (!card) return;
 
     const boardId = card.getAttribute("data-board-id");
-    const action = target.getAttribute("data-action");
-    if (!boardId || !action) return;
+    if (!boardId) return;
+
+    // Explicit action buttons take priority
+    const action = target.closest("[data-action]")?.getAttribute("data-action");
 
     if (action === "remove") {
       state.styleBoards = state.styleBoards.filter(board => board.id !== boardId);
@@ -260,22 +266,22 @@ export function initStyleBoards(state) {
       return;
     }
 
-    if (action === "view") {
-      const board = state.styleBoards.find(b => b.id === boardId);
-      if (board) openModal(board);
+    if (action === "edit") {
+      card.querySelector("[data-edit-form]")?.classList.remove("hidden");
       return;
     }
 
-    const editForm = card.querySelector("[data-edit-form]");
-    if (!(editForm instanceof HTMLElement)) return;
-
-    if (action === "edit") {
-      editForm.classList.remove("hidden");
-    }
-
     if (action === "cancel-edit") {
-      editForm.classList.add("hidden");
+      card.querySelector("[data-edit-form]")?.classList.add("hidden");
+      return;
     }
+
+    // Don't open modal when interacting with the edit form
+    if (target.closest("[data-edit-form]")) return;
+
+    // Anywhere else on the card → open modal
+    const board = state.styleBoards.find(b => b.id === boardId);
+    if (board) openModal(board);
   });
 
   grid?.addEventListener("submit", event => {
@@ -330,7 +336,7 @@ export function initStyleBoards(state) {
         <div class="board-modal-grid">
           ${board.images.map((img, i) => `
             <div class="board-modal-cell">
-              <img src="${escapeHtml(img)}" alt="${escapeHtml(board.title)} ${i + 1}" loading="lazy" />
+              <img src="${encodeSrc(img)}" alt="${escapeHtml(board.title)} ${i + 1}" loading="lazy" />
             </div>`).join("")}
         </div>
       </div>
