@@ -1,4 +1,4 @@
-import { saveRefineList } from "../state.js";
+import { saveRefineList, saveStyleBoards } from "../state.js";
 import { profilePromptLine } from "./profile.js";
 
 const API_KEY_STORE = "curato_claude_key";
@@ -236,6 +236,7 @@ export function initStyleBoards(state) {
     });
 
     state.styleBoards.unshift(board);
+    saveStyleBoards(state.styleBoards);
     form.reset();
     form.classList.add("hidden");
     render();
@@ -254,6 +255,7 @@ export function initStyleBoards(state) {
 
     if (action === "remove") {
       state.styleBoards = state.styleBoards.filter(board => board.id !== boardId);
+      saveStyleBoards(state.styleBoards);
       render();
       return;
     }
@@ -300,6 +302,7 @@ export function initStyleBoards(state) {
     board.description = String(data.get("description") || "").trim();
     board.images      = images;
     board.tags        = deriveKeywords(images);
+    saveStyleBoards(state.styleBoards);
     render();
   });
 
