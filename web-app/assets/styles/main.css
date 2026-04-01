@@ -89,11 +89,127 @@ body {
   color: #fff;
 }
 
-.status-dot {
-  width: 7px; height: 7px;
-  border-radius: 50%;
-  background: #4ade80;
+.profile-trigger {
+  font-family: Inter, sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,.2);
+  color: rgba(255,255,255,.6);
+  padding: 5px 12px;
+  cursor: pointer;
   flex-shrink: 0;
+  transition: border-color .18s, color .18s;
+}
+
+.profile-trigger:hover,
+.profile-trigger.is-active {
+  border-color: rgba(255,255,255,.6);
+  color: #fff;
+}
+
+/* ── Profile panel ──────────────────────────────────────────────── */
+.profile-panel {
+  background: #101116;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  position: sticky;
+  top: 48px;
+  z-index: 9;
+}
+
+.profile-panel-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 28px 40px 32px;
+}
+
+.profile-panel-head {
+  margin-bottom: 20px;
+}
+
+.profile-panel-kicker {
+  font-family: Inter, sans-serif;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin: 0 0 6px;
+}
+
+.profile-panel-desc {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 14px;
+  font-style: italic;
+  color: rgba(255,255,255,.4);
+  margin: 0;
+}
+
+.profile-form {}
+
+.profile-fields {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 0 24px;
+  margin-bottom: 20px;
+}
+
+.profile-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.profile-field-label {
+  font-family: Inter, sans-serif;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.35);
+}
+
+.profile-field-input {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 15px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(255,255,255,.12);
+  padding: 4px 0;
+  color: #fff;
+  outline: none;
+  width: 100%;
+  transition: border-color .18s;
+}
+
+.profile-field-input::placeholder { color: rgba(255,255,255,.2); font-style: italic; }
+.profile-field-input:focus { border-color: rgba(255,255,255,.45); }
+
+.profile-form-actions {
+  display: flex;
+  gap: 20px;
+  justify-content: flex-end;
+}
+
+.profile-form-actions button {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 14px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: rgba(255,255,255,.4);
+  transition: color .15s;
+}
+
+.profile-form-actions button:hover { color: #fff; }
+
+.profile-form-actions button[type="submit"] {
+  color: #fff;
+  border-bottom: 1px solid rgba(255,255,255,.4);
+  padding-bottom: 1px;
 }
 
 /* ── Layout ─────────────────────────────────────────────────────── */

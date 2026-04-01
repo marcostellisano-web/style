@@ -18,8 +18,9 @@ export function renderHeader() {
       <div class="header-inner">
         <div class="brand">Cur<span class="brand-accent">a</span>to</div>
         <nav class="top-nav" aria-label="Primary">${links}</nav>
-        <div class="status-dot" aria-hidden="true"></div>
+        <button class="profile-trigger" id="profile-trigger" type="button" aria-label="Edit profile">Me</button>
       </div>
     </header>
+    <div id="profile-panel" class="profile-panel hidden"></div>
   `;
 }

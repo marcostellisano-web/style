@@ -1,4 +1,5 @@
 import { saveSavedLooks } from "../state.js";
+import { profilePromptLine } from "./profile.js";
 
 const API_KEY_STORE = "curato_claude_key";
 const createId = () =>
@@ -220,7 +221,7 @@ export function initGenerate(state, { onSaveLook }) {
       : "";
 
     const prompt = `You are a high-end personal stylist. Create ${selectedCount} complete, intentional outfit combination${selectedCount > 1 ? "s" : ""} using only pieces from this wardrobe.${anchorLine}${boardLine}
-
+${profilePromptLine(state.profile)}
 Context:
 - Vibe / occasion: ${selectedVibe}
 - Season: ${selectedSeason}

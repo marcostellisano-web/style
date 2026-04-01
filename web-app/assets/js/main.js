@@ -6,6 +6,7 @@ import { renderStyleBoards, initStyleBoards } from "./components/styleBoards.js"
 import { renderSavedLooks, initSavedLooks } from "./components/savedLooks.js";
 import { renderShoppingList, initShoppingList } from "./components/shoppingList.js";
 import { renderFooter } from "./components/footer.js";
+import { initProfile } from "./components/profile.js";
 
 // ── Mount ──────────────────────────────────────────────────────────
 const app = document.querySelector("#app");
@@ -40,6 +41,7 @@ document.querySelectorAll(".top-nav-btn").forEach(btn =>
 activateTab("wardrobe");
 
 // ── Init modules ───────────────────────────────────────────────────
+initProfile(state);
 initStyleBoards(state);
 
 const { update: updateSavedLooks } = initSavedLooks(state);
