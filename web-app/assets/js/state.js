@@ -229,24 +229,20 @@ export const state = {
   styleBoards: [
     {
       id: createId(),
-      title: "Everyday Essentials",
-      tags: ["all black", "blazer", "stripes", "summer", "oxford"],
+      title: "Continental Ease",
+      description: "The reference aesthetic: relaxed European tailoring, dark neutrals, clean summer silhouettes, and the kind of deliberate dressing that never looks like it tried too hard. Blazers worn loosely, wide trousers, all-black moments — everything considered, nothing overdone.",
+      tags: ["blazer", "all black", "euro summer", "wide leg", "tailored casual"],
       images: [
-        "/style-board-photos/everyday-essentials-1.jpg",
-        "/style-board-photos/everyday-essentials-2.jpg",
-        "/style-board-photos/everyday-essentials-3.jpg",
-        "/style-board-photos/everyday-essentials-4.jpg",
-        "/style-board-photos/everyday-essentials-5.jpg"
-      ]
-    },
-    {
-      id: createId(),
-      title: "Weekend Minimal",
-      tags: ["denim", "knitwear", "relaxed"],
-      images: [
-        "/style-board-photos/weekend-minimal-1.jpg",
-        "/style-board-photos/weekend-minimal-2.jpg",
-        "/style-board-photos/weekend-minimal-3.jpg"
+        "/style-board-photos/black elegance.jpg",
+        "/style-board-photos/blazer + wide jeans.jpg",
+        "/style-board-photos/euro summer.jpg",
+        "/style-board-photos/mescal all black.jpg",
+        "/style-board-photos/blazer + blue jeans.jpg",
+        "/style-board-photos/clean summer fit.jpg",
+        "/style-board-photos/black summer.jpg",
+        "/style-board-photos/striped button down + wide jeans.jpg",
+        "/style-board-photos/mood board - olive suit.jpg",
+        "/style-board-photos/mood board 1.jpg"
       ]
     }
   ],

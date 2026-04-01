@@ -1308,6 +1308,7 @@ select { cursor: pointer; }
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 3px;
+  cursor: pointer;
 }
 
 .board-tile {
@@ -1430,6 +1431,137 @@ select { cursor: pointer; }
   color: var(--ink);
   border-bottom: 1px solid var(--ink);
   padding-bottom: 1px;
+}
+
+/* ── Board modal ────────────────────────────────────────────────── */
+.board-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(16, 17, 22, .85);
+  z-index: 100;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  overflow-y: auto;
+  padding: 40px 24px 60px;
+  backdrop-filter: blur(4px);
+}
+
+.board-modal-overlay.hidden { display: none; }
+
+body.modal-open { overflow: hidden; }
+
+.board-modal {
+  background: var(--paper);
+  max-width: 1100px;
+  width: 100%;
+  position: relative;
+  padding: 52px 48px 48px;
+}
+
+.board-modal-close {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  background: none;
+  border: none;
+  font-size: 14px;
+  color: var(--muted);
+  cursor: pointer;
+  line-height: 1;
+  padding: 4px;
+  transition: color .15s;
+}
+
+.board-modal-close:hover { color: var(--ink); }
+
+.board-modal-header {
+  margin-bottom: 36px;
+  max-width: 680px;
+}
+
+.board-modal-kicker {
+  font-family: Inter, sans-serif;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin: 0 0 10px;
+}
+
+.board-modal-title {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 52px;
+  font-weight: 400;
+  line-height: 1;
+  margin: 0 0 16px;
+  color: var(--ink);
+}
+
+.board-modal-desc {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.7;
+  margin: 0 0 12px;
+  font-style: italic;
+}
+
+.board-modal-tags {
+  font-family: Inter, sans-serif;
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: .06em;
+  margin: 0;
+}
+
+.board-modal-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+}
+
+.board-modal-cell {
+  aspect-ratio: 3/4;
+  overflow: hidden;
+  background: #f0ede8;
+}
+
+.board-modal-cell img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: opacity .2s;
+}
+
+.board-modal-cell:hover img { opacity: .92; }
+
+/* Overflow counter on tile */
+.board-tile-more {
+  position: relative;
+  width: 100%; height: 100%;
+  cursor: pointer;
+}
+
+.board-tile-more img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+  opacity: .4;
+}
+
+.board-tile-more::after {
+  content: attr(data-count);
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Cormorant Garamond", serif;
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--ink);
+  pointer-events: none;
 }
 
 /* ── Fill the Gaps ──────────────────────────────────────────────── */
