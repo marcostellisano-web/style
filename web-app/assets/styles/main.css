@@ -1635,10 +1635,11 @@ body.modal-open { overflow: hidden; }
   background: var(--ink);
   color: #fff;
   border: 1px solid var(--ink);
-  padding: 14px 24px;
+  padding: 10px 20px;
   cursor: pointer;
   white-space: nowrap;
   transition: background .2s, color .2s;
+  flex-shrink: 0;
 }
 
 .fill-gaps-btn:hover {
@@ -1660,10 +1661,17 @@ body.modal-open { overflow: hidden; }
 .fill-gaps-cats {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 20px;
   padding-top: 24px;
   margin-top: 24px;
   border-top: 1px solid var(--line);
+}
+
+.fill-gaps-cats-divider {
+  width: 1px;
+  height: 18px;
+  background: var(--line);
+  flex-shrink: 0;
 }
 
 .fill-gaps-cats-label {

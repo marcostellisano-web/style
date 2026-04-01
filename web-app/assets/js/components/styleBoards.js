@@ -149,10 +149,11 @@ export function renderStyleBoards() {
               <input type="password" id="fill-gaps-api-key" placeholder="Enter Claude API key" />
               <button type="button" id="fill-gaps-key-save">Go</button>
             </div>
-            <button type="button" id="fill-gaps-btn" class="fill-gaps-btn">→ Suggest Pieces</button>
           </div>
         </div>
         <div class="fill-gaps-cats">
+          <button type="button" id="fill-gaps-btn" class="fill-gaps-btn">→ Suggest Pieces</button>
+          <span class="fill-gaps-cats-divider" aria-hidden="true"></span>
           <span class="fill-gaps-cats-label">Suggest from</span>
           <div class="fill-gaps-cat-pills" id="fill-gaps-cat-pills">
             <button class="fill-gaps-cat-pill is-active" data-cat="Tops">Tops</button>
