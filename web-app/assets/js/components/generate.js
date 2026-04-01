@@ -31,6 +31,15 @@ export function renderGenerate() {
       <div class="generate-options">
 
         <div class="generate-option-group">
+          <span class="generate-option-label">Number of looks</span>
+          <div class="generate-pills" id="generate-count-pills">
+            <button class="generate-pill" data-count="1">1</button>
+            <button class="generate-pill" data-count="2">2</button>
+            <button class="generate-pill is-active" data-count="3">3</button>
+          </div>
+        </div>
+
+        <div class="generate-option-group">
           <span class="generate-option-label">Vibe</span>
           <div class="generate-pills" id="generate-vibe-pills">
             <button class="generate-pill is-active" data-vibe="Casual">Casual</button>
@@ -96,12 +105,21 @@ export function initGenerate(state, { onSaveLook }) {
   const tempDisplay          = document.querySelector("#generate-temp-display");
 
   // ── Local option state ────────────────────────────────────────────
+  let selectedCount   = 3;
   let selectedVibe    = "Casual";
   let selectedSeason  = "Spring";
   let selectedTemp    = 15;
   let selectedBoardId = null;
 
   // ── Pill selectors ────────────────────────────────────────────────
+  document.querySelector("#generate-count-pills")?.addEventListener("click", e => {
+    const btn = e.target.closest(".generate-pill[data-count]");
+    if (!btn) return;
+    document.querySelectorAll("#generate-count-pills .generate-pill").forEach(b => b.classList.remove("is-active"));
+    btn.classList.add("is-active");
+    selectedCount = Number(btn.dataset.count);
+  });
+
   document.querySelector("#generate-vibe-pills")?.addEventListener("click", e => {
     const btn = e.target.closest(".generate-pill[data-vibe]");
     if (!btn) return;
@@ -201,7 +219,7 @@ export function initGenerate(state, { onSaveLook }) {
       ? `\nStyle reference: The user loves the aesthetic of a board called "${board.title}" with these vibe keywords: ${board.tags?.join(", ") || "minimal, curated"}. Let this inform the mood of the looks.`
       : "";
 
-    const prompt = `You are a high-end personal stylist. Create 3 complete, intentional outfit combinations using only pieces from this wardrobe.${anchorLine}${boardLine}
+    const prompt = `You are a high-end personal stylist. Create ${selectedCount} complete, intentional outfit combination${selectedCount > 1 ? "s" : ""} using only pieces from this wardrobe.${anchorLine}${boardLine}
 
 Context:
 - Vibe / occasion: ${selectedVibe}
@@ -330,6 +348,18 @@ ${wardrobeSummary}`;
       outfitResults.innerHTML = `<p class="generate-error">${err.message}</p>`;
     }
   }
+
+  function updateGenerateBtn() {
+    if (generateBtn) {
+      generateBtn.textContent = `Generate ${selectedCount === 1 ? "outfit" : `${selectedCount} outfits`}`;
+    }
+  }
+
+  document.querySelector("#generate-count-pills")?.addEventListener("click", () => {
+    updateGenerateBtn();
+  });
+
+  updateGenerateBtn();
 
   generateBtn?.addEventListener("click", () => {
     if (state.wardrobe.length < 3) {
