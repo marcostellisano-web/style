@@ -1,4 +1,4 @@
-import { saveRefineList } from "../state.js";
+import { saveRefineList, saveStyleBoards } from "../state.js";
 import { profilePromptLine } from "./profile.js";
 
 const API_KEY_STORE = "curato_claude_key";
@@ -18,6 +18,11 @@ function escapeHtml(value) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#39;");
+}
+
+// Encode each path segment so filenames with spaces/+ work as src attributes
+function encodeSrc(path) {
+  return String(path).split("/").map(seg => encodeURIComponent(seg)).join("/");
 }
 
 function titleCase(value) {
@@ -60,7 +65,7 @@ function deriveKeywords(images) {
     .map(([word]) => word);
 }
 
-function buildBoard({ title, images }) {
+function buildBoard({ title, description, images }) {
   const tags = deriveKeywords(images);
   const generatedTitle = titleCase(
     title ||
@@ -74,6 +79,7 @@ function buildBoard({ title, images }) {
   return {
     id: createId(),
     title: generatedTitle,
+    description: description || "",
     tags,
     images
   };
@@ -84,6 +90,7 @@ function normalizeBoard(board) {
     return {
       id: board.id || createId(),
       title: board.title || "Untitled board",
+      description: board.description || "",
       tags: Array.isArray(board.tags)
         ? board.tags.filter(Boolean)
         : String(board.theme || "").split(",").map(tag => tag.trim()).filter(Boolean),
@@ -94,6 +101,7 @@ function normalizeBoard(board) {
   return {
     id: board.id || createId(),
     title: board.title || "Untitled board",
+    description: board.description || "",
     tags: String(board.theme || "").split(",").map(tag => tag.trim()).filter(Boolean),
     images: board.image ? [board.image] : []
   };
@@ -116,7 +124,8 @@ export function renderStyleBoards() {
       </div>
 
       <form id="style-board-form" class="style-board-form hidden" autocomplete="off">
-        <input name="title" placeholder="Optional custom title" />
+        <input name="title" placeholder="Board title" />
+        <textarea name="description" placeholder="Description — what is the vibe of this board?" rows="2"></textarea>
         <textarea name="images" placeholder="One path per line — e.g. /style-board-photos/look-1.jpg" required></textarea>
         <p class="style-board-form-note">Only images from <code>/style-board-photos/</code> are allowed.</p>
         <div class="style-board-form-actions">
@@ -166,11 +175,16 @@ export function initStyleBoards(state) {
 
     grid.innerHTML = state.styleBoards.map(board => {
       const tagLine = board.tags.length ? board.tags.join(" · ") : "";
+      const extraCount = board.images.length > 6 ? board.images.length - 6 : 0;
 
       const cells = Array.from({ length: 6 }, (_, index) => {
         const image = board.images[index];
         if (!image) return `<div class="board-tile placeholder" aria-hidden="true"></div>`;
-        return `<div class="board-tile"><img src="${escapeHtml(image)}" alt="${escapeHtml(board.title)} ${index + 1}" loading="lazy" /></div>`;
+        return `<div class="board-tile">${
+          index === 5 && extraCount > 0
+            ? `<div class="board-tile-more">+${extraCount}<img src="${encodeSrc(image)}" alt="" loading="lazy" /></div>`
+            : `<img src="${encodeSrc(image)}" alt="${escapeHtml(board.title)} ${index + 1}" loading="lazy" />`
+        }</div>`;
       }).join("");
 
       return `
@@ -186,6 +200,7 @@ export function initStyleBoards(state) {
           </div>
           <form class="board-edit-form hidden" data-edit-form>
             <input name="title" value="${escapeHtml(board.title)}" placeholder="Board title" required />
+            <textarea name="description" rows="2">${escapeHtml(board.description || "")}</textarea>
             <textarea name="images" required>${escapeHtml(board.images.join("\n"))}</textarea>
             <p class="style-board-form-note">Only use paths from <code>/style-board-photos/</code>.</p>
             <div class="board-edit-actions">
@@ -219,11 +234,13 @@ export function initStyleBoards(state) {
     }
 
     const board = buildBoard({
-      title: String(data.get("title") || "").trim(),
+      title:       String(data.get("title") || "").trim(),
+      description: String(data.get("description") || "").trim(),
       images
     });
 
     state.styleBoards.unshift(board);
+    saveStyleBoards(state.styleBoards);
     form.reset();
     form.classList.add("hidden");
     render();
@@ -237,25 +254,34 @@ export function initStyleBoards(state) {
     if (!card) return;
 
     const boardId = card.getAttribute("data-board-id");
-    const action = target.getAttribute("data-action");
-    if (!boardId || !action) return;
+    if (!boardId) return;
+
+    // Explicit action buttons take priority
+    const action = target.closest("[data-action]")?.getAttribute("data-action");
 
     if (action === "remove") {
       state.styleBoards = state.styleBoards.filter(board => board.id !== boardId);
+      saveStyleBoards(state.styleBoards);
       render();
       return;
     }
 
-    const editForm = card.querySelector("[data-edit-form]");
-    if (!(editForm instanceof HTMLElement)) return;
-
     if (action === "edit") {
-      editForm.classList.remove("hidden");
+      card.querySelector("[data-edit-form]")?.classList.remove("hidden");
+      return;
     }
 
     if (action === "cancel-edit") {
-      editForm.classList.add("hidden");
+      card.querySelector("[data-edit-form]")?.classList.add("hidden");
+      return;
     }
+
+    // Don't open modal when interacting with the edit form
+    if (target.closest("[data-edit-form]")) return;
+
+    // Anywhere else on the card → open modal
+    const board = state.styleBoards.find(b => b.id === boardId);
+    if (board) openModal(board);
   });
 
   grid?.addEventListener("submit", event => {
@@ -278,11 +304,58 @@ export function initStyleBoards(state) {
     const board = state.styleBoards.find(item => item.id === boardId);
     if (!board) return;
 
-    board.title = String(data.get("title") || "").trim() || board.title;
-    board.images = images;
-    board.tags = deriveKeywords(images);
+    board.title       = String(data.get("title") || "").trim() || board.title;
+    board.description = String(data.get("description") || "").trim();
+    board.images      = images;
+    board.tags        = deriveKeywords(images);
+    saveStyleBoards(state.styleBoards);
     render();
   });
+
+  // ── Board modal ────────────────────────────────────────────────────
+  function openModal(board) {
+    let overlay = document.querySelector("#board-modal-overlay");
+    if (!overlay) {
+      overlay = document.createElement("div");
+      overlay.id = "board-modal-overlay";
+      overlay.className = "board-modal-overlay";
+      document.body.appendChild(overlay);
+    }
+
+    const tagLine = board.tags?.length ? board.tags.join(" · ") : "";
+
+    overlay.innerHTML = `
+      <div class="board-modal" role="dialog" aria-modal="true" aria-label="${escapeHtml(board.title)}">
+        <button class="board-modal-close" id="board-modal-close" aria-label="Close">✕</button>
+        <div class="board-modal-header">
+          <p class="board-modal-kicker">Style Board</p>
+          <h2 class="board-modal-title">${escapeHtml(board.title)}</h2>
+          ${board.description ? `<p class="board-modal-desc">${escapeHtml(board.description)}</p>` : ""}
+          ${tagLine ? `<p class="board-modal-tags">${escapeHtml(tagLine)}</p>` : ""}
+        </div>
+        <div class="board-modal-grid">
+          ${board.images.map((img, i) => `
+            <div class="board-modal-cell">
+              <img src="${encodeSrc(img)}" alt="${escapeHtml(board.title)} ${i + 1}" loading="lazy" />
+            </div>`).join("")}
+        </div>
+      </div>
+    `;
+
+    overlay.classList.remove("hidden");
+    document.body.classList.add("modal-open");
+
+    const close = () => {
+      overlay.classList.add("hidden");
+      document.body.classList.remove("modal-open");
+    };
+
+    overlay.querySelector("#board-modal-close")?.addEventListener("click", close);
+    overlay.addEventListener("click", e => { if (e.target === overlay) close(); });
+
+    const onKey = e => { if (e.key === "Escape") { close(); document.removeEventListener("keydown", onKey); } };
+    document.addEventListener("keydown", onKey);
+  }
 
   render();
 
