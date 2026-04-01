@@ -380,7 +380,7 @@ export function initStyleBoards(state) {
 
     const prompt = `You are a high-end personal stylist. A user has shared their wardrobe and their style boards (mood boards showing the aesthetic they aspire to).
 ${profilePromptLine(state.profile)}
-Your job: identify 4–5 specific pieces they do NOT yet own that would bridge the gap between their current wardrobe and their style board aesthetic.
+Your job: identify exactly 2 specific pieces they do NOT yet own that would bridge the gap between their current wardrobe and their style board aesthetic.
 
 Rules:
 - Do not suggest anything already in the wardrobe

@@ -35,8 +35,7 @@ export function renderGenerate() {
           <span class="generate-option-label">Number of looks</span>
           <div class="generate-pills" id="generate-count-pills">
             <button class="generate-pill" data-count="1">1</button>
-            <button class="generate-pill" data-count="2">2</button>
-            <button class="generate-pill is-active" data-count="3">3</button>
+            <button class="generate-pill is-active" data-count="2">2</button>
           </div>
         </div>
 
@@ -106,7 +105,7 @@ export function initGenerate(state, { onSaveLook }) {
   const tempDisplay          = document.querySelector("#generate-temp-display");
 
   // ── Local option state ────────────────────────────────────────────
-  let selectedCount   = 3;
+  let selectedCount   = 2;
   let selectedVibe    = "Casual";
   let selectedSeason  = "Spring";
   let selectedTemp    = 15;
