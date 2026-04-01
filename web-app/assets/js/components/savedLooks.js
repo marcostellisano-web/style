@@ -39,7 +39,7 @@ export function initSavedLooks(state) {
           <article class="saved-look-card">
             <button class="saved-look-delete" data-idx="${idx}" type="button" aria-label="Delete">✕</button>
             <div class="saved-look-photos">
-              ${resolved.slice(0, 3).map(item => `
+              ${resolved.slice(0, 5).map(item => `
                 <div class="saved-look-photo">
                   ${item.photo
                     ? `<img src="${item.photo}" alt="${item.name}" loading="lazy" />`
