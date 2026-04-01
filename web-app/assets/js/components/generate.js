@@ -13,7 +13,7 @@ export function renderGenerate() {
       <div class="generate-hero">
         <p class="wardrobe-kicker">AI Styling</p>
         <h1 class="wardrobe-title">Generate</h1>
-        <p class="wardrobe-subtitle">Three looks, from your wardrobe</p>
+        <p class="wardrobe-subtitle">Up to two looks, from your wardrobe</p>
         <p class="wardrobe-desc" id="generate-desc">Choose a vibe and season, then hit Generate. Anchor a piece first to build every look around it.</p>
       </div>
 
