@@ -53,6 +53,11 @@ export function initSavedLooks(state) {
               </div>
               <p class="saved-look-note">${look.note || ""}</p>
               <p class="saved-look-items">${(look.items || []).join(" · ")}</p>
+              ${look.upgrade ? `
+              <div class="saved-look-upgrade">
+                <span class="saved-look-upgrade-label">Upgrade to 10</span>
+                <span>${look.upgrade.item} — ${look.upgrade.why}</span>
+              </div>` : ""}
             </div>
           </article>`;
       }).join("")
