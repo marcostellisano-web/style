@@ -400,18 +400,33 @@ export function initStyleBoards(state, { onSuggest } = {}) {
   function getApiKey() { return localStorage.getItem(API_KEY_STORE) || ""; }
   function storeApiKey(k) { localStorage.setItem(API_KEY_STORE, k); }
 
-  // Fetch an image from a local path and return { base64, mediaType } or null
+  // Fetch an image, resize to max 512px via canvas, return { base64, mediaType } or null
   async function fetchImageBase64(path) {
     try {
       const res = await fetch(encodeSrc(path));
       if (!res.ok) return null;
       const blob = await res.blob();
-      const mediaType = blob.type || "image/jpeg";
       return new Promise(resolve => {
-        const reader = new FileReader();
-        reader.onload = () => resolve({ base64: reader.result.split(",")[1], mediaType });
-        reader.onerror = () => resolve(null);
-        reader.readAsDataURL(blob);
+        const img = new Image();
+        const url = URL.createObjectURL(blob);
+        img.onload = () => {
+          URL.revokeObjectURL(url);
+          const MAX = 512;
+          let { naturalWidth: w, naturalHeight: h } = img;
+          if (w > MAX || h > MAX) {
+            const scale = Math.min(MAX / w, MAX / h);
+            w = Math.round(w * scale);
+            h = Math.round(h * scale);
+          }
+          const canvas = document.createElement("canvas");
+          canvas.width = w;
+          canvas.height = h;
+          canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+          const dataUrl = canvas.toDataURL("image/jpeg", 0.75);
+          resolve({ base64: dataUrl.split(",")[1], mediaType: "image/jpeg" });
+        };
+        img.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
+        img.src = url;
       });
     } catch {
       return null;
@@ -468,15 +483,14 @@ ${wardrobeSummary}
 Style boards (the aesthetic they aspire to):
 ${boardsSummary}`;
 
-    // Gather up to 4 board images (spread across boards) for vision context
+    // Gather up to 3 board images (spread evenly) for vision context
     const imageBlocks = [];
     const allImages = (state.styleBoards || []).flatMap(b => b.images || []);
-    // Sample evenly: take up to 4, spread across the full list
-    const step = Math.max(1, Math.floor(allImages.length / 4));
-    const sampled = [0, step, step * 2, step * 3]
+    const step = Math.max(1, Math.floor(allImages.length / 3));
+    const sampled = [0, step, step * 2]
       .map(i => allImages[i])
       .filter(Boolean)
-      .slice(0, 4);
+      .slice(0, 3);
 
     for (const imgPath of sampled) {
       const img = await fetchImageBase64(imgPath);
@@ -503,7 +517,7 @@ ${boardsSummary}`;
       },
       body: JSON.stringify({
         model: "claude-sonnet-4-6",
-        max_tokens: 2048,
+        max_tokens: 4096,
         messages: [{ role: "user", content: messageContent }]
       })
     });
