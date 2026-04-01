@@ -440,7 +440,7 @@ ${boardsSummary}`;
   }
 
   async function runFillGaps(apiKey) {
-    if (fillGapsStatus) fillGapsStatus.textContent = "Analysing your wardrobe and boards…";
+    if (fillGapsStatus) fillGapsStatus.innerHTML = `<p class="fill-gaps-loading">Analysing your wardrobe and boards…</p>`;
     fillGapsBtn.disabled = true;
     try {
       const result = await callFillGaps(apiKey);
@@ -463,15 +463,29 @@ ${boardsSummary}`;
       saveRefineList(state.refineList);
       onSuggest?.();
 
-      const added = newItems.filter(i => !existing.has(i.item.toLowerCase())).length;
       if (fillGapsStatus) {
-        fillGapsStatus.textContent = added
-          ? `${added} new piece${added !== 1 ? "s" : ""} added to your Shopping List.`
-          : "No new pieces — all suggestions already on your list.";
-        setTimeout(() => { if (fillGapsStatus) fillGapsStatus.textContent = ""; }, 4000);
+        if (!suggestions.length) {
+          fillGapsStatus.innerHTML = `<p class="fill-gaps-loading">No suggestions returned — try again.</p>`;
+          return;
+        }
+        fillGapsStatus.innerHTML = `
+          <div class="fill-gaps-results">
+            <p class="fill-gaps-confirm">✓ Added to your Shopping List</p>
+            <div class="fill-gaps-cards">
+              ${newItems.map(s => `
+                <div class="fill-gaps-card">
+                  <div class="fill-gaps-card-head">
+                    <h3 class="fill-gaps-card-name">${s.item}</h3>
+                    <span class="fill-gaps-card-meta">${[s.brand, s.price_range].filter(Boolean).join(" · ")}</span>
+                  </div>
+                  <p class="fill-gaps-card-why">${s.why}</p>
+                  ${s.pairs_with ? `<p class="fill-gaps-card-pairs">${s.pairs_with}</p>` : ""}
+                </div>`).join("")}
+            </div>
+          </div>`;
       }
     } catch (err) {
-      if (fillGapsStatus) fillGapsStatus.textContent = err.message;
+      if (fillGapsStatus) fillGapsStatus.innerHTML = `<p class="fill-gaps-loading">${err.message}</p>`;
     } finally {
       fillGapsBtn.disabled = false;
     }
