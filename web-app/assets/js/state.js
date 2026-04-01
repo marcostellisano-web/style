@@ -173,10 +173,30 @@ export function saveRefineList(list) {
   }
 }
 
+const SAVED_LOOKS_KEY = "curato_saved_looks_v1";
+
+function loadSavedLooks() {
+  try {
+    const saved = localStorage.getItem(SAVED_LOOKS_KEY);
+    if (saved) return JSON.parse(saved);
+  } catch {
+    // corrupted — fall through
+  }
+  return [];
+}
+
+export function saveSavedLooks(looks) {
+  try {
+    localStorage.setItem(SAVED_LOOKS_KEY, JSON.stringify(looks));
+  } catch {
+    // storage full or unavailable — silently skip
+  }
+}
+
 export const state = {
   wardrobe: loadWardrobe(),
   generated: [],
-  savedLooks: [],
+  savedLooks: loadSavedLooks(),
   shoppingList: [],
   refineList: loadRefineList(),
   styleBoards: [
