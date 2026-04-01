@@ -193,12 +193,39 @@ export function saveSavedLooks(looks) {
   }
 }
 
+const PROFILE_KEY = "curato_profile_v1";
+
+const DEFAULT_PROFILE = {
+  name: "Marco",
+  age: "34",
+  location: "Toronto",
+  build: "Slim athletic",
+  height: "5'8\"",
+  weight: "138 lbs",
+  skin: "Light olive",
+  hair: "Dark curly",
+  notes: "Italian-Canadian runner"
+};
+
+function loadProfile() {
+  try {
+    const saved = localStorage.getItem(PROFILE_KEY);
+    if (saved) return JSON.parse(saved);
+  } catch {}
+  return { ...DEFAULT_PROFILE };
+}
+
+export function saveProfile(profile) {
+  try { localStorage.setItem(PROFILE_KEY, JSON.stringify(profile)); } catch {}
+}
+
 export const state = {
   wardrobe: loadWardrobe(),
   generated: [],
   savedLooks: loadSavedLooks(),
   shoppingList: [],
   refineList: loadRefineList(),
+  profile: loadProfile(),
   styleBoards: [
     {
       id: createId(),

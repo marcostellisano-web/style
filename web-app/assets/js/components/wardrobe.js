@@ -1,4 +1,5 @@
 import { saveWardrobe, saveRefineList } from "../state.js";
+import { profilePromptLine } from "./profile.js";
 
 const CATEGORIES = ["All Pieces", "Tops", "Bottoms", "Statement", "Outerwear", "Footwear", "Accessories"];
 
@@ -556,7 +557,7 @@ export function initWardrobe(state, { onRefine } = {}) {
     ).join("\n");
 
     const prompt = `You are a high-end personal stylist focused on refined, modern, minimalist fashion.
-
+${profilePromptLine(state.profile)}
 Your job is to analyze a user's wardrobe and suggest a SMALL number of highly intentional additions that will significantly improve outfit versatility, cohesion, and overall refinement.
 
 Avoid generic suggestions. Every recommendation must:
