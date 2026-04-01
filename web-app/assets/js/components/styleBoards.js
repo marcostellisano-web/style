@@ -97,19 +97,23 @@ function normalizeBoard(board) {
 export function renderStyleBoards() {
   return `
     <section class="tab-panel app-section" id="style-boards">
-      <div class="style-boards-head">
-        <div>
-          <p class="style-boards-kicker">Inspiration</p>
-          <h2>Style <em>Boards</em></h2>
-          <p class="style-boards-subhead">Add image paths from <code>/style-board-photos/</code>. AI-generated board tags and titles can be edited anytime.</p>
-        </div>
+
+      <!-- Hero -->
+      <div class="style-boards-hero">
+        <p class="wardrobe-kicker">Inspiration</p>
+        <h1 class="wardrobe-title">Style <em>Boards</em></h1>
+        <p class="wardrobe-subtitle" style="font-size:18px;margin-top:4px;">The aesthetic behind the wardrobe</p>
+      </div>
+
+      <!-- Controls -->
+      <div class="style-boards-controls">
         <button type="button" class="new-board-btn" id="style-board-toggle">+ New Board</button>
       </div>
 
       <form id="style-board-form" class="style-board-form hidden" autocomplete="off">
         <input name="title" placeholder="Optional custom title" />
-        <textarea name="images" placeholder="Use one path per line (e.g. /style-board-photos/look-1.jpg)" required></textarea>
-        <p class="style-board-form-note">Only images from <code>/style-board-photos/</code> are allowed for boards.</p>
+        <textarea name="images" placeholder="One path per line — e.g. /style-board-photos/look-1.jpg" required></textarea>
+        <p class="style-board-form-note">Only images from <code>/style-board-photos/</code> are allowed.</p>
         <div class="style-board-form-actions">
           <button type="button" id="style-board-cancel">Cancel</button>
           <button type="submit">Create board</button>
@@ -138,31 +142,25 @@ export function initStyleBoards(state) {
     }
 
     grid.innerHTML = state.styleBoards.map(board => {
-      const topTags = board.tags.length ? board.tags.join(", ") : "No tags yet";
-      const tagPills = board.tags.length
-        ? board.tags.map(tag => `<span class="board-tag">${escapeHtml(tag)}</span>`).join("")
-        : '<span class="board-tag">untagged</span>';
+      const tagLine = board.tags.length ? board.tags.join(" · ") : "";
 
       const cells = Array.from({ length: 6 }, (_, index) => {
         const image = board.images[index];
         if (!image) return `<div class="board-tile placeholder" aria-hidden="true"></div>`;
-        return `<div class="board-tile"><img src="${escapeHtml(image)}" alt="${escapeHtml(board.title)} reference ${index + 1}" loading="lazy" /></div>`;
+        return `<div class="board-tile"><img src="${escapeHtml(image)}" alt="${escapeHtml(board.title)} ${index + 1}" loading="lazy" /></div>`;
       }).join("");
 
       return `
         <article class="board-card" data-board-id="${escapeHtml(board.id)}">
-          <header class="board-header">
-            <h3>${escapeHtml(board.title)}</h3>
-            <p>${escapeHtml(topTags)}</p>
-          </header>
           <div class="board-tiles">${cells}</div>
-          <footer class="board-footer">
-            <div class="board-tags">${tagPills}</div>
+          <div class="board-info">
+            <h3 class="board-title">${escapeHtml(board.title)}</h3>
+            ${tagLine ? `<p class="board-tags-line">${escapeHtml(tagLine)}</p>` : ""}
             <div class="board-actions-inline">
               <button type="button" class="board-action" data-action="edit">Edit</button>
               <button type="button" class="board-action remove" data-action="remove">Remove</button>
             </div>
-          </footer>
+          </div>
           <form class="board-edit-form hidden" data-edit-form>
             <input name="title" value="${escapeHtml(board.title)}" placeholder="Board title" required />
             <textarea name="images" required>${escapeHtml(board.images.join("\n"))}</textarea>
