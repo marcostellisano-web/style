@@ -400,6 +400,17 @@ export function initStyleBoards(state, { onSuggest } = {}) {
   function getApiKey() { return localStorage.getItem(API_KEY_STORE) || ""; }
   function storeApiKey(k) { localStorage.setItem(API_KEY_STORE, k); }
 
+  // Fetch pre-generated image descriptions from the repo
+  async function fetchImageDescriptions() {
+    try {
+      const res = await fetch("/assets/data/board-image-descriptions.json");
+      if (!res.ok) return {};
+      return await res.json();
+    } catch {
+      return {};
+    }
+  }
+
   // Fetch an image, resize to max 512px via canvas, return { base64, mediaType } or null
   async function fetchImageBase64(path) {
     try {
@@ -434,6 +445,8 @@ export function initStyleBoards(state, { onSuggest } = {}) {
   }
 
   async function callFillGaps(apiKey) {
+    const imageDescriptions = await fetchImageDescriptions();
+
     const wardrobeSummary = (state.wardrobe || []).map(item =>
       `- ${item.name} (${item.category}${item.brand ? `, ${item.brand}` : ""}, ${item.color})`
     ).join("\n");
@@ -446,7 +459,40 @@ export function initStyleBoards(state, { onSuggest } = {}) {
 
     const alreadySuggested = (state.refineList || []).map(i => `- ${i.item}`).join("\n") || "None";
 
-    const prompt = `You are a high-end personal stylist. A user has shared their wardrobe and their style boards (mood boards showing the aesthetic they aspire to). I am also sharing photos from their style boards so you can see the actual visual aesthetic.
+    // Sample up to 3 images spread evenly across all boards
+    const allImages = (state.styleBoards || []).flatMap(b => b.images || []);
+    const step = Math.max(1, Math.floor(allImages.length / 3));
+    const sampled = [0, step, step * 2]
+      .map(i => allImages[i])
+      .filter(Boolean)
+      .slice(0, 3);
+
+    // Use cached text descriptions where available; fall back to vision only for uncached images
+    const imageBlocks = [];
+    const cachedDescLines = [];
+
+    for (const imgPath of sampled) {
+      const cached = imageDescriptions[imgPath]?.description;
+      if (cached) {
+        cachedDescLines.push(cached);
+      } else {
+        const img = await fetchImageBase64(imgPath);
+        if (img) {
+          imageBlocks.push({
+            type: "image",
+            source: { type: "base64", media_type: img.mediaType, data: img.base64 }
+          });
+        }
+      }
+    }
+
+    const visualContext = cachedDescLines.length
+      ? `\n\nStyle board photo descriptions (outfit details and vibe):\n${cachedDescLines.map(d => `---\n${d}`).join("\n")}`
+      : "";
+
+    const usingVision = imageBlocks.length > 0;
+
+    const prompt = `You are a high-end personal stylist. A user has shared their wardrobe and their style boards (mood boards showing the aesthetic they aspire to).${usingVision ? " I am also sharing photos from their style boards so you can see the actual visual aesthetic." : ""}
 ${profilePromptLine(state.profile)}
 Your job: identify exactly 2 specific pieces they do NOT yet own that would bridge the gap between their current wardrobe and their style board aesthetic.
 
@@ -481,26 +527,7 @@ Current wardrobe:
 ${wardrobeSummary}
 
 Style boards (the aesthetic they aspire to):
-${boardsSummary}`;
-
-    // Gather up to 3 board images (spread evenly) for vision context
-    const imageBlocks = [];
-    const allImages = (state.styleBoards || []).flatMap(b => b.images || []);
-    const step = Math.max(1, Math.floor(allImages.length / 3));
-    const sampled = [0, step, step * 2]
-      .map(i => allImages[i])
-      .filter(Boolean)
-      .slice(0, 3);
-
-    for (const imgPath of sampled) {
-      const img = await fetchImageBase64(imgPath);
-      if (img) {
-        imageBlocks.push({
-          type: "image",
-          source: { type: "base64", media_type: img.mediaType, data: img.base64 }
-        });
-      }
-    }
+${boardsSummary}${visualContext}`;
 
     const messageContent = [
       { type: "text", text: prompt },
@@ -533,7 +560,7 @@ ${boardsSummary}`;
   }
 
   async function runFillGaps(apiKey) {
-    if (fillGapsStatus) fillGapsStatus.innerHTML = `<p class="fill-gaps-loading">Reading your style board photos and wardrobe…</p>`;
+    if (fillGapsStatus) fillGapsStatus.innerHTML = `<p class="fill-gaps-loading">Analysing your wardrobe and style boards…</p>`;
     fillGapsBtn.disabled = true;
     try {
       const result = await callFillGaps(apiKey);
