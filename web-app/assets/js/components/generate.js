@@ -13,7 +13,7 @@ export function renderGenerate() {
         <p class="wardrobe-kicker">AI Styling</p>
         <h1 class="wardrobe-title">Generate</h1>
         <p class="wardrobe-subtitle">Three looks, from your wardrobe</p>
-        <p class="wardrobe-desc" id="generate-desc">Click Generate to build complete outfit combinations from your wardrobe. Anchor a piece first to build every look around it.</p>
+        <p class="wardrobe-desc" id="generate-desc">Choose a vibe and season, then hit Generate. Anchor a piece first to build every look around it.</p>
       </div>
 
       <!-- Anchor banner -->
@@ -25,6 +25,51 @@ export function renderGenerate() {
       <div id="generate-key-row" class="refine-key-row hidden">
         <input type="password" id="generate-api-key" placeholder="Enter Claude API key to continue" />
         <button type="button" id="generate-key-save">Go</button>
+      </div>
+
+      <!-- Options -->
+      <div class="generate-options">
+
+        <div class="generate-option-group">
+          <span class="generate-option-label">Vibe</span>
+          <div class="generate-pills" id="generate-vibe-pills">
+            <button class="generate-pill is-active" data-vibe="Casual">Casual</button>
+            <button class="generate-pill" data-vibe="Smart Casual">Smart Casual</button>
+            <button class="generate-pill" data-vibe="Formal">Formal</button>
+            <button class="generate-pill" data-vibe="Editorial">Editorial</button>
+            <button class="generate-pill" data-vibe="Streetwear">Streetwear</button>
+            <button class="generate-pill" data-vibe="Business">Business</button>
+          </div>
+        </div>
+
+        <div class="generate-option-group">
+          <span class="generate-option-label">Season</span>
+          <div class="generate-pills" id="generate-season-pills">
+            <button class="generate-pill is-active" data-season="Spring">Spring</button>
+            <button class="generate-pill" data-season="Summer">Summer</button>
+            <button class="generate-pill" data-season="Autumn">Autumn</button>
+            <button class="generate-pill" data-season="Winter">Winter</button>
+          </div>
+        </div>
+
+        <div class="generate-option-group generate-option-group--temp">
+          <span class="generate-option-label">Temperature <span class="generate-temp-value" id="generate-temp-display">15°C</span></span>
+          <div class="generate-temp-row">
+            <span class="generate-temp-bound">−10°</span>
+            <input type="range" id="generate-temp" min="-10" max="40" value="15" step="1" />
+            <span class="generate-temp-bound">40°</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Style board reference -->
+      <div class="generate-board-section">
+        <span class="generate-option-label">
+          Reference a style board
+          <em class="generate-board-optional">— optional, click to select</em>
+        </span>
+        <div id="generate-board-picker" class="generate-board-picker"></div>
       </div>
 
       <!-- Controls -->
@@ -47,7 +92,73 @@ export function initGenerate(state, { onSaveLook }) {
   const keyRow               = document.querySelector("#generate-key-row");
   const keyInput             = document.querySelector("#generate-api-key");
   const keySave              = document.querySelector("#generate-key-save");
+  const tempSlider           = document.querySelector("#generate-temp");
+  const tempDisplay          = document.querySelector("#generate-temp-display");
 
+  // ── Local option state ────────────────────────────────────────────
+  let selectedVibe    = "Casual";
+  let selectedSeason  = "Spring";
+  let selectedTemp    = 15;
+  let selectedBoardId = null;
+
+  // ── Pill selectors ────────────────────────────────────────────────
+  document.querySelector("#generate-vibe-pills")?.addEventListener("click", e => {
+    const btn = e.target.closest(".generate-pill[data-vibe]");
+    if (!btn) return;
+    document.querySelectorAll("#generate-vibe-pills .generate-pill").forEach(b => b.classList.remove("is-active"));
+    btn.classList.add("is-active");
+    selectedVibe = btn.dataset.vibe;
+  });
+
+  document.querySelector("#generate-season-pills")?.addEventListener("click", e => {
+    const btn = e.target.closest(".generate-pill[data-season]");
+    if (!btn) return;
+    document.querySelectorAll("#generate-season-pills .generate-pill").forEach(b => b.classList.remove("is-active"));
+    btn.classList.add("is-active");
+    selectedSeason = btn.dataset.season;
+  });
+
+  tempSlider?.addEventListener("input", () => {
+    selectedTemp = Number(tempSlider.value);
+    if (tempDisplay) tempDisplay.textContent = `${selectedTemp}°C`;
+  });
+
+  // ── Board picker ──────────────────────────────────────────────────
+  function renderBoardPicker() {
+    const picker = document.querySelector("#generate-board-picker");
+    if (!picker) return;
+
+    if (!state.styleBoards?.length) {
+      picker.innerHTML = '<p class="generate-no-boards">No style boards yet — create one in the Style Boards tab.</p>';
+      return;
+    }
+
+    picker.innerHTML = state.styleBoards.map(board => {
+      const thumb = board.images?.[0] || null;
+      const isSelected = board.id === selectedBoardId;
+      return `
+        <button type="button" class="generate-board-card${isSelected ? " is-selected" : ""}" data-board-id="${board.id}">
+          <div class="generate-board-thumb">
+            ${thumb
+              ? `<img src="${thumb}" alt="${board.title}" loading="lazy" />`
+              : `<div class="generate-board-thumb-empty"></div>`}
+          </div>
+          <span class="generate-board-name">${board.title}</span>
+          ${board.tags?.length ? `<span class="generate-board-tags">${board.tags.slice(0, 3).join(", ")}</span>` : ""}
+        </button>
+      `;
+    }).join("");
+
+    picker.addEventListener("click", e => {
+      const card = e.target.closest(".generate-board-card[data-board-id]");
+      if (!card) return;
+      const id = card.dataset.boardId;
+      selectedBoardId = selectedBoardId === id ? null : id;
+      renderBoardPicker();
+    });
+  }
+
+  // ── Anchor banner ─────────────────────────────────────────────────
   function getApiKey() { return localStorage.getItem(API_KEY_STORE) || ""; }
   function storeApiKey(k) { localStorage.setItem(API_KEY_STORE, k); }
 
@@ -62,10 +173,14 @@ export function initGenerate(state, { onSaveLook }) {
 
   document.querySelectorAll(".top-nav-btn").forEach(btn => {
     btn.addEventListener("click", () => {
-      if (btn.dataset.tab === "generate") refreshAnchorBanner();
+      if (btn.dataset.tab === "generate") {
+        refreshAnchorBanner();
+        renderBoardPicker();
+      }
     });
   });
   refreshAnchorBanner();
+  renderBoardPicker();
 
   // ── API call ──────────────────────────────────────────────────────
   async function callGenerate(apiKey) {
@@ -78,14 +193,27 @@ export function initGenerate(state, { onSaveLook }) {
       ? `\nIMPORTANT: Every outfit MUST include "${anchor.name}". Build all three looks around this piece.`
       : "";
 
-    const prompt = `You are a high-end personal stylist. Your job is to create 3 complete, intentional outfit combinations using only pieces from this wardrobe.${anchorLine}
+    const board = selectedBoardId
+      ? state.styleBoards?.find(b => b.id === selectedBoardId)
+      : null;
+
+    const boardLine = board
+      ? `\nStyle reference: The user loves the aesthetic of a board called "${board.title}" with these vibe keywords: ${board.tags?.join(", ") || "minimal, curated"}. Let this inform the mood of the looks.`
+      : "";
+
+    const prompt = `You are a high-end personal stylist. Create 3 complete, intentional outfit combinations using only pieces from this wardrobe.${anchorLine}${boardLine}
+
+Context:
+- Vibe / occasion: ${selectedVibe}
+- Season: ${selectedSeason}
+- Temperature: approximately ${selectedTemp}°C — consider warmth, layering, and fabric weight accordingly
 
 Rules:
 - Use only items listed in the wardrobe below
 - Each outfit should use 3–4 pieces
-- Each look should feel distinct (different mood, occasion, or silhouette)
+- Each look should feel distinct (different mood, silhouette, or occasion)
 - Write a short, specific stylist note for each (1–2 sentences, editorial tone)
-- Give each look a creative headline
+- Give each look a creative headline that captures the vibe
 - Rate each outfit out of 10 based on cohesion and versatility
 - Suggest one specific upgrade piece that would elevate the look to a 10 (can be something NOT in the wardrobe)
 
