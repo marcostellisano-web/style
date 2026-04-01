@@ -1294,8 +1294,8 @@ select { cursor: pointer; }
 
 .saved-look-photos {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 4px;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 3px;
 }
 
 .saved-look-photo {
@@ -1305,7 +1305,7 @@ select { cursor: pointer; }
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 8px;
+  padding: 4px;
 }
 
 .saved-look-photo img {
