@@ -975,7 +975,16 @@ select { cursor: pointer; }
 
 .generate-board-card.is-selected {
   border-color: var(--ink);
-  outline: 1px solid var(--ink);
+  background: var(--ink);
+}
+
+.generate-board-card.is-selected .generate-board-name,
+.generate-board-card.is-selected .generate-board-tags {
+  color: #fff;
+}
+
+.generate-board-card.is-selected img {
+  opacity: .8;
 }
 
 .generate-board-thumb {
