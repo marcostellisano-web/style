@@ -16,7 +16,7 @@ export function renderHeader() {
   return `
     <header class="site-header">
       <div class="header-inner">
-        <div class="brand">Cur<span class="brand-accent">a</span>to</div>
+        <div class="brand">Modo</div>
         <nav class="top-nav" aria-label="Primary">${links}</nav>
         <button class="profile-trigger" id="profile-trigger" type="button" aria-label="Edit profile">Me</button>
       </div>
