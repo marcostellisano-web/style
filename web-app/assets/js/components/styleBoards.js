@@ -138,17 +138,31 @@ export function renderStyleBoards() {
 
       <!-- Fill the Gaps -->
       <div class="fill-gaps-section">
-        <div class="fill-gaps-left">
-          <p class="fill-gaps-kicker">Wardrobe Intelligence</p>
-          <h2 class="fill-gaps-headline">Fill the <em>Gaps</em></h2>
-          <p class="fill-gaps-desc">AI analyses your current wardrobe and style boards to suggest pieces you don't own yet — sent straight to your Shopping List.</p>
-        </div>
-        <div class="fill-gaps-right">
-          <div id="fill-gaps-key-row" class="refine-key-row hidden">
-            <input type="password" id="fill-gaps-api-key" placeholder="Enter Claude API key" />
-            <button type="button" id="fill-gaps-key-save">Go</button>
+        <div class="fill-gaps-top">
+          <div class="fill-gaps-left">
+            <p class="fill-gaps-kicker">Wardrobe Intelligence</p>
+            <h2 class="fill-gaps-headline">Fill the <em>Gaps</em></h2>
+            <p class="fill-gaps-desc">AI analyses your current wardrobe and style boards to suggest pieces you don't own yet — sent straight to your Shopping List.</p>
           </div>
+          <div class="fill-gaps-right">
+            <div id="fill-gaps-key-row" class="refine-key-row hidden">
+              <input type="password" id="fill-gaps-api-key" placeholder="Enter Claude API key" />
+              <button type="button" id="fill-gaps-key-save">Go</button>
+            </div>
+          </div>
+        </div>
+        <div class="fill-gaps-cats">
           <button type="button" id="fill-gaps-btn" class="fill-gaps-btn">→ Suggest Pieces</button>
+          <span class="fill-gaps-cats-divider" aria-hidden="true"></span>
+          <span class="fill-gaps-cats-label">Suggest from</span>
+          <div class="fill-gaps-cat-pills" id="fill-gaps-cat-pills">
+            <button class="fill-gaps-cat-pill is-active" data-cat="Tops">Tops</button>
+            <button class="fill-gaps-cat-pill is-active" data-cat="Bottoms">Bottoms</button>
+            <button class="fill-gaps-cat-pill is-active" data-cat="Outerwear">Outerwear</button>
+            <button class="fill-gaps-cat-pill is-active" data-cat="Footwear">Footwear</button>
+            <button class="fill-gaps-cat-pill is-active" data-cat="Accessories">Accessories</button>
+            <button class="fill-gaps-cat-pill is-active" data-cat="Statement">Statement</button>
+          </div>
         </div>
       </div>
       <div id="fill-gaps-status" class="fill-gaps-status"></div>
@@ -365,6 +379,23 @@ export function initStyleBoards(state, { onSuggest } = {}) {
   const fillGapsKeyIn  = document.querySelector("#fill-gaps-api-key");
   const fillGapsKeySave= document.querySelector("#fill-gaps-key-save");
   const fillGapsStatus = document.querySelector("#fill-gaps-status");
+  const catPillsEl     = document.querySelector("#fill-gaps-cat-pills");
+
+  // Track which categories are selected (all active by default)
+  let selectedCategories = ["Tops", "Bottoms", "Outerwear", "Footwear", "Accessories", "Statement"];
+
+  catPillsEl?.addEventListener("click", event => {
+    const pill = event.target.closest(".fill-gaps-cat-pill");
+    if (!pill) return;
+    const cat = pill.getAttribute("data-cat");
+    if (!cat) return;
+    const isActive = pill.classList.toggle("is-active");
+    if (isActive) {
+      selectedCategories.push(cat);
+    } else {
+      selectedCategories = selectedCategories.filter(c => c !== cat);
+    }
+  });
 
   function getApiKey() { return localStorage.getItem(API_KEY_STORE) || ""; }
   function storeApiKey(k) { localStorage.setItem(API_KEY_STORE, k); }
@@ -383,6 +414,8 @@ export function initStyleBoards(state, { onSuggest } = {}) {
     const prompt = `You are a high-end personal stylist. A user has shared their wardrobe and their style boards (mood boards showing the aesthetic they aspire to).
 ${profilePromptLine(state.profile)}
 Your job: identify exactly 2 specific pieces they do NOT yet own that would bridge the gap between their current wardrobe and their style board aesthetic.
+
+Only suggest pieces from these categories: ${selectedCategories.length ? selectedCategories.join(", ") : "any category"}.
 
 Already on their shopping list — do NOT suggest these again:
 ${alreadySuggested}

@@ -2,6 +2,7 @@ import { saveSavedLooks } from "../state.js";
 import { profilePromptLine } from "./profile.js";
 
 const API_KEY_STORE = "curato_claude_key";
+const encodeSrc = path => String(path).split("/").map(seg => encodeURIComponent(seg)).join("/");
 const createId = () =>
   globalThis.crypto?.randomUUID?.() ?? `id-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
@@ -13,7 +14,7 @@ export function renderGenerate() {
       <div class="generate-hero">
         <p class="wardrobe-kicker">AI Styling</p>
         <h1 class="wardrobe-title">Generate</h1>
-        <p class="wardrobe-subtitle">Three looks, from your wardrobe</p>
+        <p class="wardrobe-subtitle">Up to two looks, from your wardrobe</p>
         <p class="wardrobe-desc" id="generate-desc">Choose a vibe and season, then hit Generate. Anchor a piece first to build every look around it.</p>
       </div>
 
@@ -158,7 +159,7 @@ export function initGenerate(state, { onSaveLook }) {
         <button type="button" class="generate-board-card${isSelected ? " is-selected" : ""}" data-board-id="${board.id}">
           <div class="generate-board-thumb">
             ${thumb
-              ? `<img src="${thumb}" alt="${board.title}" loading="lazy" />`
+              ? `<img src="${encodeSrc(thumb)}" alt="${board.title}" loading="lazy" />`
               : `<div class="generate-board-thumb-empty"></div>`}
           </div>
           <span class="generate-board-name">${board.title}</span>
