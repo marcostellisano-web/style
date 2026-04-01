@@ -1,3 +1,7 @@
+import { saveRefineList } from "../state.js";
+
+const API_KEY_STORE = "curato_claude_key";
+
 const STOP_WORDS = new Set([
   "https", "http", "www", "com", "net", "org", "jpg", "jpeg", "png", "webp", "gif",
   "image", "images", "img", "photo", "photos", "board", "style", "upload", "cdn", "fit", "crop", "auto", "format", "q", "w"
@@ -121,6 +125,24 @@ export function renderStyleBoards() {
       </form>
 
       <div id="style-boards-grid" class="style-boards-grid" aria-live="polite"></div>
+
+      <!-- Fill the Gaps -->
+      <div class="fill-gaps-section">
+        <div class="fill-gaps-left">
+          <p class="fill-gaps-kicker">Wardrobe Intelligence</p>
+          <h2 class="fill-gaps-headline">Fill the <em>Gaps</em></h2>
+          <p class="fill-gaps-desc">AI analyses your current wardrobe and style boards to suggest pieces you don't own yet — sent straight to your Shopping List.</p>
+        </div>
+        <div class="fill-gaps-right">
+          <div id="fill-gaps-key-row" class="refine-key-row hidden">
+            <input type="password" id="fill-gaps-api-key" placeholder="Enter Claude API key" />
+            <button type="button" id="fill-gaps-key-save">Go</button>
+          </div>
+          <button type="button" id="fill-gaps-btn" class="fill-gaps-btn">→ Suggest Pieces</button>
+        </div>
+      </div>
+      <div id="fill-gaps-status" class="fill-gaps-status"></div>
+
     </section>
   `;
 }
@@ -262,4 +284,133 @@ export function initStyleBoards(state) {
   });
 
   render();
+
+  // ── Fill the Gaps ──────────────────────────────────────────────────
+  const fillGapsBtn    = document.querySelector("#fill-gaps-btn");
+  const fillGapsKeyRow = document.querySelector("#fill-gaps-key-row");
+  const fillGapsKeyIn  = document.querySelector("#fill-gaps-api-key");
+  const fillGapsKeySave= document.querySelector("#fill-gaps-key-save");
+  const fillGapsStatus = document.querySelector("#fill-gaps-status");
+
+  function getApiKey() { return localStorage.getItem(API_KEY_STORE) || ""; }
+  function storeApiKey(k) { localStorage.setItem(API_KEY_STORE, k); }
+
+  async function callFillGaps(apiKey) {
+    const wardrobeSummary = (state.wardrobe || []).map(item =>
+      `- ${item.name} (${item.category}${item.brand ? `, ${item.brand}` : ""}, ${item.color})`
+    ).join("\n");
+
+    const boardsSummary = (state.styleBoards || []).map(b =>
+      `- "${b.title}"${b.tags?.length ? `: aesthetic keywords — ${b.tags.join(", ")}` : ""}`
+    ).join("\n");
+
+    const prompt = `You are a high-end personal stylist. A user has shared their wardrobe and their style boards (mood boards showing the aesthetic they aspire to).
+
+Your job: identify 4–5 specific pieces they do NOT yet own that would bridge the gap between their current wardrobe and their style board aesthetic.
+
+Rules:
+- Do not suggest anything already in the wardrobe
+- Be specific: name the exact item, a real brand, and a realistic price range
+- Explain why each piece fills a gap between what they own and what their boards suggest
+- Each piece should unlock new outfits or elevate existing ones
+- Lean toward investment pieces that are versatile, not trendy
+
+Return ONLY valid JSON, no other text:
+{
+  "suggestions": [
+    {
+      "item": "specific item name",
+      "category": "Tops|Bottoms|Outerwear|Footwear|Accessories|Statement",
+      "brand": "brand name",
+      "price_range": "£X–£Y",
+      "why": "why this fills a gap",
+      "pairs_with": "what it works with in the wardrobe"
+    }
+  ]
+}
+
+Current wardrobe:
+${wardrobeSummary}
+
+Style boards (the aesthetic they aspire to):
+${boardsSummary}`;
+
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true"
+      },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 1024,
+        messages: [{ role: "user", content: prompt }]
+      })
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || `API error ${res.status}`);
+    }
+    const data = await res.json();
+    const raw  = data.content[0]?.text || "";
+    const start = raw.indexOf("{"), end = raw.lastIndexOf("}");
+    return JSON.parse(raw.slice(start, end + 1));
+  }
+
+  async function runFillGaps(apiKey) {
+    if (fillGapsStatus) fillGapsStatus.textContent = "Analysing your wardrobe and boards…";
+    fillGapsBtn.disabled = true;
+    try {
+      const result = await callFillGaps(apiKey);
+      const suggestions = result.suggestions || [];
+
+      const newItems = suggestions.map(s => ({
+        item:        s.item,
+        category:    s.category || "Other",
+        brand:       s.brand || "",
+        price_range: s.price_range || "",
+        why:         s.why || "",
+        pairs_with:  s.pairs_with || "",
+        searchUrl:   `https://www.google.com/search?q=${encodeURIComponent(`${s.item} ${s.brand || ""}`.trim())}&tbm=shop`
+      }));
+
+      const existing = new Set((state.refineList || []).map(i => i.item.toLowerCase()));
+      newItems.forEach(item => {
+        if (!existing.has(item.item.toLowerCase())) state.refineList.push(item);
+      });
+      saveRefineList(state.refineList);
+
+      const count = newItems.filter(i => !existing.has(i.item.toLowerCase())).length || newItems.length;
+      if (fillGapsStatus) {
+        fillGapsStatus.textContent = `${suggestions.length} piece${suggestions.length !== 1 ? "s" : ""} added to your Shopping List.`;
+        setTimeout(() => { if (fillGapsStatus) fillGapsStatus.textContent = ""; }, 4000);
+      }
+    } catch (err) {
+      if (fillGapsStatus) fillGapsStatus.textContent = err.message;
+    } finally {
+      fillGapsBtn.disabled = false;
+    }
+  }
+
+  fillGapsBtn?.addEventListener("click", () => {
+    const key = getApiKey();
+    if (!key) {
+      fillGapsKeyRow?.classList.remove("hidden");
+      fillGapsKeyIn?.focus();
+      return;
+    }
+    fillGapsKeyRow?.classList.add("hidden");
+    runFillGaps(key);
+  });
+
+  fillGapsKeySave?.addEventListener("click", () => {
+    const key = fillGapsKeyIn?.value.trim();
+    if (!key) return;
+    storeApiKey(key);
+    fillGapsKeyRow?.classList.add("hidden");
+    runFillGaps(key);
+  });
 }

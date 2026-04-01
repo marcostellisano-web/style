@@ -1316,6 +1316,98 @@ select { cursor: pointer; }
   padding-bottom: 1px;
 }
 
+/* ── Fill the Gaps ──────────────────────────────────────────────── */
+.fill-gaps-section {
+  max-width: 1200px;
+  margin: 56px auto 0;
+  padding: 40px 0;
+  border-top: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px;
+}
+
+.fill-gaps-left {
+  max-width: 540px;
+}
+
+.fill-gaps-kicker {
+  font-family: Inter, sans-serif;
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .2em;
+  color: var(--gold);
+  margin: 0 0 10px;
+}
+
+.fill-gaps-headline {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 52px;
+  font-weight: 400;
+  line-height: 1;
+  margin: 0 0 14px;
+  color: var(--ink);
+}
+
+.fill-gaps-headline em {
+  font-style: italic;
+  color: var(--muted);
+}
+
+.fill-gaps-desc {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.65;
+  margin: 0;
+  max-width: 420px;
+}
+
+.fill-gaps-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.fill-gaps-btn {
+  font-family: Inter, sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  background: var(--ink);
+  color: #fff;
+  border: 1px solid var(--ink);
+  padding: 14px 24px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background .2s, color .2s;
+}
+
+.fill-gaps-btn:hover {
+  background: transparent;
+  color: var(--ink);
+}
+
+.fill-gaps-btn:disabled {
+  opacity: .5;
+  cursor: default;
+}
+
+.fill-gaps-status {
+  max-width: 1200px;
+  margin: 0 auto 28px;
+  font-family: "Cormorant Garamond", serif;
+  font-size: 14px;
+  font-style: italic;
+  color: var(--muted);
+  min-height: 20px;
+}
+
+/* ── Saved looks ────────────────────────────────────────────────── */
 .saved-looks-list { display: block; }
 
 .saved-looks-grid {
