@@ -3,9 +3,10 @@ import { saveSavedLooks } from "../state.js";
 export function renderSavedLooks() {
   return `
     <section class="tab-panel app-section" id="saved-looks">
-      <div class="section-head">
-        <h2>Saved Looks</h2>
-        <p>Every generated outfit, saved automatically. Delete any you don't want to keep.</p>
+      <div class="wardrobe-hero">
+        <p class="wardrobe-kicker">Your Looks</p>
+        <h1 class="wardrobe-title">Saved <em>Looks</em></h1>
+        <p class="wardrobe-subtitle" style="font-size:18px;margin-top:4px;">Every generated outfit, preserved</p>
       </div>
       <div id="saved-looks-list" class="saved-looks-list"></div>
     </section>

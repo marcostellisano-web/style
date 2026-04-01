@@ -157,7 +157,7 @@ export function renderStyleBoards() {
   `;
 }
 
-export function initStyleBoards(state) {
+export function initStyleBoards(state, { onSuggest } = {}) {
   const form = document.querySelector("#style-board-form");
   const toggleBtn = document.querySelector("#style-board-toggle");
   const cancelBtn = document.querySelector("#style-board-cancel");
@@ -378,9 +378,14 @@ export function initStyleBoards(state) {
       `- "${b.title}"${b.tags?.length ? `: aesthetic keywords — ${b.tags.join(", ")}` : ""}`
     ).join("\n");
 
+    const alreadySuggested = (state.refineList || []).map(i => `- ${i.item}`).join("\n") || "None";
+
     const prompt = `You are a high-end personal stylist. A user has shared their wardrobe and their style boards (mood boards showing the aesthetic they aspire to).
 ${profilePromptLine(state.profile)}
-Your job: identify 4–5 specific pieces they do NOT yet own that would bridge the gap between their current wardrobe and their style board aesthetic.
+Your job: identify exactly 2 specific pieces they do NOT yet own that would bridge the gap between their current wardrobe and their style board aesthetic.
+
+Already on their shopping list — do NOT suggest these again:
+${alreadySuggested}
 
 Rules:
 - Do not suggest anything already in the wardrobe
@@ -419,7 +424,7 @@ ${boardsSummary}`;
       },
       body: JSON.stringify({
         model: "claude-sonnet-4-6",
-        max_tokens: 1024,
+        max_tokens: 2048,
         messages: [{ role: "user", content: prompt }]
       })
     });
@@ -435,7 +440,7 @@ ${boardsSummary}`;
   }
 
   async function runFillGaps(apiKey) {
-    if (fillGapsStatus) fillGapsStatus.textContent = "Analysing your wardrobe and boards…";
+    if (fillGapsStatus) fillGapsStatus.innerHTML = `<p class="fill-gaps-loading">Analysing your wardrobe and boards…</p>`;
     fillGapsBtn.disabled = true;
     try {
       const result = await callFillGaps(apiKey);
@@ -456,14 +461,31 @@ ${boardsSummary}`;
         if (!existing.has(item.item.toLowerCase())) state.refineList.push(item);
       });
       saveRefineList(state.refineList);
+      onSuggest?.();
 
-      const count = newItems.filter(i => !existing.has(i.item.toLowerCase())).length || newItems.length;
       if (fillGapsStatus) {
-        fillGapsStatus.textContent = `${suggestions.length} piece${suggestions.length !== 1 ? "s" : ""} added to your Shopping List.`;
-        setTimeout(() => { if (fillGapsStatus) fillGapsStatus.textContent = ""; }, 4000);
+        if (!suggestions.length) {
+          fillGapsStatus.innerHTML = `<p class="fill-gaps-loading">No suggestions returned — try again.</p>`;
+          return;
+        }
+        fillGapsStatus.innerHTML = `
+          <div class="fill-gaps-results">
+            <p class="fill-gaps-confirm">✓ Added to your Shopping List</p>
+            <div class="fill-gaps-cards">
+              ${newItems.map(s => `
+                <div class="fill-gaps-card">
+                  <div class="fill-gaps-card-head">
+                    <h3 class="fill-gaps-card-name">${s.item}</h3>
+                    <span class="fill-gaps-card-meta">${[s.brand, s.price_range].filter(Boolean).join(" · ")}</span>
+                  </div>
+                  <p class="fill-gaps-card-why">${s.why}</p>
+                  ${s.pairs_with ? `<p class="fill-gaps-card-pairs">${s.pairs_with}</p>` : ""}
+                </div>`).join("")}
+            </div>
+          </div>`;
       }
     } catch (err) {
-      if (fillGapsStatus) fillGapsStatus.textContent = err.message;
+      if (fillGapsStatus) fillGapsStatus.innerHTML = `<p class="fill-gaps-loading">${err.message}</p>`;
     } finally {
       fillGapsBtn.disabled = false;
     }
