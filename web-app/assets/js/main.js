@@ -47,11 +47,5 @@ const { refresh: refreshShoppingList } = initShoppingList(state);
 
 initWardrobe(state, { onRefine: () => refreshShoppingList() });
 
-// Generate is wired to saved looks + shopping list via callback
-initGenerate(state, {
-  onSaveLook(look) {
-    state.savedLooks.unshift(look);
-    updateSavedLooks();
-    refreshShoppingList();
-  }
-});
+// Generate auto-saves looks; callback just refreshes saved looks UI
+initGenerate(state, { onSaveLook: () => updateSavedLooks() });

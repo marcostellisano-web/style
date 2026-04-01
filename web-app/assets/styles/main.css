@@ -1038,10 +1038,104 @@ select { cursor: pointer; }
   border-color: var(--ink);
 }
 
-.saved-looks-list { display: grid; gap: 8px; }
-.saved-look { border: 1px solid var(--line); border-radius: 7px; padding: 10px 12px; background: #f9f7f4; font-size: 13px; }
-.saved-look h3 { margin: 0 0 3px; font-family: "Cormorant Garamond", serif; font-size: 18px; }
-.saved-look p  { margin: 0; font-size: 12px; color: var(--muted); }
+.saved-looks-list { display: block; }
+
+.saved-looks-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.saved-look-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.saved-look-delete {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(255,255,255,.85);
+  border: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  font-size: 10px;
+  color: var(--muted);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity .15s, color .15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+.saved-look-card:hover .saved-look-delete { opacity: 1; }
+.saved-look-delete:hover { color: var(--ink); }
+
+.saved-look-photos {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+}
+
+.saved-look-photo {
+  background: #f0ede8;
+  aspect-ratio: 4/5;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+}
+
+.saved-look-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.saved-look-info { display: flex; flex-direction: column; gap: 4px; }
+
+.saved-look-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.saved-look-headline {
+  margin: 0;
+  font-family: "Cormorant Garamond", serif;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1.2;
+}
+
+.saved-look-rating {
+  font-family: Inter, sans-serif;
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: .06em;
+  white-space: nowrap;
+}
+
+.saved-look-note {
+  margin: 0;
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.saved-look-items {
+  margin: 0;
+  font-size: 10px;
+  color: var(--muted);
+  font-style: italic;
+}
 
 /* ── Shopping list ──────────────────────────────────────────────── */
 .shopping-list-items { display: grid; gap: 0; }

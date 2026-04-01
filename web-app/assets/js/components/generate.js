@@ -1,3 +1,5 @@
+import { saveSavedLooks } from "../state.js";
+
 const API_KEY_STORE = "curato_claude_key";
 const createId = () =>
   globalThis.crypto?.randomUUID?.() ?? `id-${Date.now()}-${Math.random().toString(16).slice(2)}`;
@@ -147,6 +149,23 @@ ${wardrobeSummary}`;
       resolvedItems: resolveItems(o.items)
     }));
 
+    // Auto-save all generated looks (prepend, avoid duplicates by headline)
+    const existingHeadlines = new Set(state.savedLooks.map(l => l.headline));
+    state.generated.forEach(outfit => {
+      if (!existingHeadlines.has(outfit.headline)) {
+        state.savedLooks.unshift({
+          id:       outfit.id,
+          headline: outfit.headline,
+          note:     outfit.note,
+          rating:   outfit.rating,
+          items:    outfit.items,
+          upgrade:  outfit.upgrade
+        });
+      }
+    });
+    saveSavedLooks(state.savedLooks);
+    onSaveLook?.();
+
     outfitResults.innerHTML = state.generated.map(outfit => `
       <article class="outfit-card">
         <div class="outfit-card-header">
@@ -169,7 +188,6 @@ ${wardrobeSummary}`;
           <span class="outfit-upgrade-label">Upgrade to 10</span>
           <span>${outfit.upgrade.item} — ${outfit.upgrade.why}</span>
         </div>
-        <button class="save-look" data-id="${outfit.id}" type="button">Save look</button>
       </article>`
     ).join("");
   }
@@ -208,9 +226,4 @@ ${wardrobeSummary}`;
     runGenerate(key);
   });
 
-  outfitResults?.addEventListener("click", e => {
-    if (!(e.target instanceof HTMLElement) || !e.target.classList.contains("save-look")) return;
-    const match = state.generated.find(i => i.id === e.target.dataset.id);
-    if (match) onSaveLook(match);
-  });
 }
