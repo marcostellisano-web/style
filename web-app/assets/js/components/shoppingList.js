@@ -5,9 +5,10 @@ import { saveRefineList } from "../state.js";
 export function renderShoppingList() {
   return `
     <section class="tab-panel app-section" id="shopping-list">
-      <div class="section-head">
-        <h2>Shopping List</h2>
-        <p>Stylist picks from Refine, organised by category.</p>
+      <div class="wardrobe-hero">
+        <p class="wardrobe-kicker">Wishlist</p>
+        <h1 class="wardrobe-title">Shopping <em>List</em></h1>
+        <p class="wardrobe-subtitle" style="font-size:18px;margin-top:4px;">Pieces to complete the picture</p>
       </div>
       <div id="shopping-list-items" class="shopping-list-items"></div>
     </section>
