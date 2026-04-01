@@ -400,18 +400,38 @@ export function initStyleBoards(state, { onSuggest } = {}) {
   function getApiKey() { return localStorage.getItem(API_KEY_STORE) || ""; }
   function storeApiKey(k) { localStorage.setItem(API_KEY_STORE, k); }
 
+  // Fetch an image from a local path and return { base64, mediaType } or null
+  async function fetchImageBase64(path) {
+    try {
+      const res = await fetch(encodeSrc(path));
+      if (!res.ok) return null;
+      const blob = await res.blob();
+      const mediaType = blob.type || "image/jpeg";
+      return new Promise(resolve => {
+        const reader = new FileReader();
+        reader.onload = () => resolve({ base64: reader.result.split(",")[1], mediaType });
+        reader.onerror = () => resolve(null);
+        reader.readAsDataURL(blob);
+      });
+    } catch {
+      return null;
+    }
+  }
+
   async function callFillGaps(apiKey) {
     const wardrobeSummary = (state.wardrobe || []).map(item =>
       `- ${item.name} (${item.category}${item.brand ? `, ${item.brand}` : ""}, ${item.color})`
     ).join("\n");
 
-    const boardsSummary = (state.styleBoards || []).map(b =>
-      `- "${b.title}"${b.tags?.length ? `: aesthetic keywords — ${b.tags.join(", ")}` : ""}`
-    ).join("\n");
+    const boardsSummary = (state.styleBoards || []).map(b => {
+      const desc = b.description ? ` — "${b.description}"` : "";
+      const tags = b.tags?.length ? ` (keywords: ${b.tags.join(", ")})` : "";
+      return `- "${b.title}"${desc}${tags}`;
+    }).join("\n");
 
     const alreadySuggested = (state.refineList || []).map(i => `- ${i.item}`).join("\n") || "None";
 
-    const prompt = `You are a high-end personal stylist. A user has shared their wardrobe and their style boards (mood boards showing the aesthetic they aspire to).
+    const prompt = `You are a high-end personal stylist. A user has shared their wardrobe and their style boards (mood boards showing the aesthetic they aspire to). I am also sharing photos from their style boards so you can see the actual visual aesthetic.
 ${profilePromptLine(state.profile)}
 Your job: identify exactly 2 specific pieces they do NOT yet own that would bridge the gap between their current wardrobe and their style board aesthetic.
 
@@ -426,6 +446,7 @@ Rules:
 - Explain why each piece fills a gap between what they own and what their boards suggest
 - Each piece should unlock new outfits or elevate existing ones
 - Lean toward investment pieces that are versatile, not trendy
+- Base your suggestions on the actual visual aesthetic in the style board photos
 
 Return ONLY valid JSON, no other text:
 {
@@ -447,6 +468,31 @@ ${wardrobeSummary}
 Style boards (the aesthetic they aspire to):
 ${boardsSummary}`;
 
+    // Gather up to 4 board images (spread across boards) for vision context
+    const imageBlocks = [];
+    const allImages = (state.styleBoards || []).flatMap(b => b.images || []);
+    // Sample evenly: take up to 4, spread across the full list
+    const step = Math.max(1, Math.floor(allImages.length / 4));
+    const sampled = [0, step, step * 2, step * 3]
+      .map(i => allImages[i])
+      .filter(Boolean)
+      .slice(0, 4);
+
+    for (const imgPath of sampled) {
+      const img = await fetchImageBase64(imgPath);
+      if (img) {
+        imageBlocks.push({
+          type: "image",
+          source: { type: "base64", media_type: img.mediaType, data: img.base64 }
+        });
+      }
+    }
+
+    const messageContent = [
+      { type: "text", text: prompt },
+      ...imageBlocks
+    ];
+
     const res = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
@@ -458,7 +504,7 @@ ${boardsSummary}`;
       body: JSON.stringify({
         model: "claude-sonnet-4-6",
         max_tokens: 2048,
-        messages: [{ role: "user", content: prompt }]
+        messages: [{ role: "user", content: messageContent }]
       })
     });
 
@@ -473,7 +519,7 @@ ${boardsSummary}`;
   }
 
   async function runFillGaps(apiKey) {
-    if (fillGapsStatus) fillGapsStatus.innerHTML = `<p class="fill-gaps-loading">Analysing your wardrobe and boards…</p>`;
+    if (fillGapsStatus) fillGapsStatus.innerHTML = `<p class="fill-gaps-loading">Reading your style board photos and wardrobe…</p>`;
     fillGapsBtn.disabled = true;
     try {
       const result = await callFillGaps(apiKey);
