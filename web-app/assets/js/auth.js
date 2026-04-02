@@ -1,4 +1,4 @@
-import { signIn, signOut, signInWithGoogle, onAuthChange } from "./supabase.js";
+import { signIn, signOut, signInWithGoogle, updatePassword, onAuthChange } from "./supabase.js";
 
 const GOOGLE_ICON = `<svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
   <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z" fill="#4285F4"/>
@@ -105,6 +105,79 @@ export function initLoginForm() {
       submitBtn.disabled    = false;
       submitBtn.textContent = "Sign in with email";
     }
+  });
+}
+
+export function renderSetPasswordScreen() {
+  return `
+    <div class="login-screen">
+      <div class="login-card">
+        <div class="login-brand">Modo</div>
+        <p class="login-tagline">Welcome — set your password to continue.</p>
+        <p id="setpw-error" class="login-error hidden"></p>
+        <form id="setpw-form" class="login-form" autocomplete="off" novalidate>
+          <input
+            type="password"
+            id="setpw-password"
+            class="login-input"
+            placeholder="Choose a password"
+            required
+            minlength="8"
+            autocomplete="new-password"
+          />
+          <input
+            type="password"
+            id="setpw-confirm"
+            class="login-input"
+            placeholder="Confirm password"
+            required
+            autocomplete="new-password"
+          />
+          <button type="submit" class="login-btn">Set password &amp; continue</button>
+        </form>
+      </div>
+    </div>
+  `;
+}
+
+export function initSetPasswordForm(onSuccess) {
+  const form    = document.querySelector("#setpw-form");
+  const errorEl = document.querySelector("#setpw-error");
+  if (!form) return;
+
+  form.addEventListener("submit", async e => {
+    e.preventDefault();
+    const pw      = document.querySelector("#setpw-password")?.value;
+    const confirm = document.querySelector("#setpw-confirm")?.value;
+    const btn     = form.querySelector("[type=submit]");
+
+    if (!pw || pw.length < 8) {
+      errorEl.textContent = "Password must be at least 8 characters.";
+      errorEl.classList.remove("hidden");
+      return;
+    }
+    if (pw !== confirm) {
+      errorEl.textContent = "Passwords don't match.";
+      errorEl.classList.remove("hidden");
+      return;
+    }
+
+    btn.disabled    = true;
+    btn.textContent = "Saving…";
+    errorEl.classList.add("hidden");
+
+    const { error } = await updatePassword(pw);
+    if (error) {
+      errorEl.textContent = error.message;
+      errorEl.classList.remove("hidden");
+      btn.disabled    = false;
+      btn.textContent = "Set password & continue";
+      return;
+    }
+
+    // Clear the invite hash from the URL so a refresh doesn't re-trigger this
+    history.replaceState(null, "", window.location.pathname);
+    onSuccess();
   });
 }
 

@@ -31,6 +31,10 @@ export async function signInWithGoogle() {
   });
 }
 
+export async function updatePassword(password) {
+  return supabase.auth.updateUser({ password });
+}
+
 export function onAuthChange(callback) {
   // Fires immediately with current session, then on every change
   return supabase.auth.onAuthStateChange((_, session) => {
