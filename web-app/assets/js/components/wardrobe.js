@@ -1,5 +1,6 @@
 import { saveWardrobe, saveRefineList } from "../state.js";
 import { profilePromptLine } from "./profile.js";
+import { uploadPhoto, upsertWardrobeItem } from "../supabase.js";
 
 const CATEGORIES = ["All Pieces", "Tops", "Bottoms", "Statement", "Outerwear", "Footwear", "Accessories"];
 
@@ -228,11 +229,11 @@ export function initWardrobe(state, { onRefine } = {}) {
   const addColorPkr = document.querySelector("#add-color-picker");
   const addColorName= document.querySelector("#add-color-name");
 
-  let addPendingPhoto = "";
+  let addPendingFile = null; // File object, set when user picks a photo
 
   function resetAddForm() {
     addForm.reset();
-    addPendingPhoto = "";
+    addPendingFile = null;
     addPreview.innerHTML = `${UPLOAD_ICON}<span>Upload photo</span>`;
     addSwatch.style.background = "#888";
     addColorPkr.value = "#888888";
@@ -262,12 +263,10 @@ export function initWardrobe(state, { onRefine } = {}) {
   addPhotoIn.addEventListener("change", () => {
     const file = addPhotoIn.files[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = e => {
-      addPendingPhoto = e.target.result;
-      addPreview.innerHTML = `<img src="${addPendingPhoto}" alt="Preview" />`;
-    };
-    reader.readAsDataURL(file);
+    addPendingFile = file;
+    // Show an instant preview via object URL (not persisted)
+    const previewUrl = URL.createObjectURL(file);
+    addPreview.innerHTML = `<img src="${previewUrl}" alt="Preview" />`;
   });
 
   filterBar.addEventListener("click", e => {
@@ -279,9 +278,25 @@ export function initWardrobe(state, { onRefine } = {}) {
     renderGrid();
   });
 
-  addForm.addEventListener("submit", e => {
+  addForm.addEventListener("submit", async e => {
     e.preventDefault();
-    const data = new FormData(addForm);
+    const data      = new FormData(addForm);
+    const submitBtn = addForm.querySelector("[type=submit]");
+
+    let photoUrl = "";
+    if (addPendingFile) {
+      submitBtn.disabled    = true;
+      submitBtn.textContent = "Saving…";
+      try {
+        photoUrl = await uploadPhoto(addPendingFile, "wardrobe", state.currentUser?.id);
+      } catch (err) {
+        submitBtn.disabled    = false;
+        submitBtn.textContent = "Add to wardrobe";
+        addPreview.insertAdjacentHTML("afterend", `<p class="photo-upload-error">${err.message}</p>`);
+        return;
+      }
+    }
+
     const entry = {
       id:          globalThis.crypto?.randomUUID?.() ?? `id-${Date.now()}`,
       name:        String(data.get("name")        || "").trim(),
@@ -290,12 +305,18 @@ export function initWardrobe(state, { onRefine } = {}) {
       brand:       String(data.get("brand")       || "").trim(),
       category:    String(data.get("category")    || "").trim(),
       rating:      parseFloat(data.get("rating")) || 7,
-      photo:       addPendingPhoto,
+      photo:       photoUrl,
       description: String(data.get("description") || "").trim()
     };
-    if (!entry.name || !entry.color || !entry.category) return;
+    if (!entry.name || !entry.color || !entry.category) {
+      submitBtn.disabled    = false;
+      submitBtn.textContent = "Add to wardrobe";
+      return;
+    }
+
     state.wardrobe.unshift(entry);
     saveWardrobe(state.wardrobe);
+    if (state.currentUser) upsertWardrobeItem(entry, state.currentUser.id); // fire-and-forget
     resetAddForm();
     renderGrid();
   });
@@ -312,10 +333,12 @@ export function initWardrobe(state, { onRefine } = {}) {
   const editColorPkr = document.querySelector("#edit-color-picker");
   const editColorName= document.querySelector("#edit-color-name");
 
-  let editPendingPhoto = null; // null = unchanged, string = new data URL
+  let editPendingFile = null;  // File object from file picker
+  let editPendingPath = null;  // string from folder-name input
 
   function openEditModal(item) {
-    editPendingPhoto = null;
+    editPendingFile = null;
+    editPendingPath = null;
     editFolderInput.value = "";
     document.querySelector("#edit-id").value = item.id;
     document.querySelector("#edit-name").value = item.name;
@@ -332,7 +355,7 @@ export function initWardrobe(state, { onRefine } = {}) {
 
     // Photo
     if (item.photo) {
-      editPhotoEl.innerHTML = `<img src="${item.photo}" alt="${item.name}" />`;
+      editPhotoEl.innerHTML = `<img src="${item.photo}" alt="${item.name}" onerror="this.style.opacity='.3'" />`;
       editFilename.textContent = "Current photo";
     } else {
       editPhotoEl.innerHTML = `<div class="edit-photo-placeholder">${UPLOAD_ICON}</div>`;
@@ -373,14 +396,12 @@ export function initWardrobe(state, { onRefine } = {}) {
   editPhotoIn.addEventListener("change", () => {
     const file = editPhotoIn.files[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = e => {
-      editPendingPhoto = e.target.result;
-      editFolderInput.value = "";
-      editPhotoEl.innerHTML = `<img src="${editPendingPhoto}" alt="Preview" />`;
-      editFilename.textContent = file.name;
-    };
-    reader.readAsDataURL(file);
+    editPendingFile = file;
+    editPendingPath = null;
+    editFolderInput.value = "";
+    const previewUrl = URL.createObjectURL(file);
+    editPhotoEl.innerHTML = `<img src="${previewUrl}" alt="Preview" />`;
+    editFilename.textContent = file.name;
   });
 
   // Preview photo from wardrobe-photos/ folder as user types
@@ -388,20 +409,40 @@ export function initWardrobe(state, { onRefine } = {}) {
     const filename = editFolderInput.value.trim();
     if (!filename) return;
     const url = `/wardrobe-photos/${filename}`;
-    editPendingPhoto = url;
+    editPendingPath = url;
+    editPendingFile = null;
     editPhotoEl.innerHTML = `<img src="${url}" alt="Preview" onerror="this.style.opacity='.3'" />`;
     editFilename.textContent = filename;
   });
 
-  editForm.addEventListener("submit", e => {
+  editForm.addEventListener("submit", async e => {
     e.preventDefault();
-    const data = new FormData(editForm);
-    const id = document.querySelector("#edit-id").value;
-    const idx = state.wardrobe.findIndex(i => i.id === id);
+    const data      = new FormData(editForm);
+    const id        = document.querySelector("#edit-id").value;
+    const idx       = state.wardrobe.findIndex(i => i.id === id);
     if (idx === -1) return;
 
+    const saveBtn = editForm.querySelector("[type=submit]");
+
+    // Resolve new photo URL: file upload > folder path > unchanged
+    let photoUrl = state.wardrobe[idx].photo; // default: keep existing
+    if (editPendingFile) {
+      saveBtn.disabled    = true;
+      saveBtn.textContent = "Saving…";
+      try {
+        photoUrl = await uploadPhoto(editPendingFile, "wardrobe", state.currentUser?.id);
+      } catch (err) {
+        saveBtn.disabled    = false;
+        saveBtn.textContent = "Save";
+        editPhotoEl.insertAdjacentHTML("afterend", `<p class="photo-upload-error">${err.message}</p>`);
+        return;
+      }
+    } else if (editPendingPath !== null) {
+      photoUrl = editPendingPath;
+    }
+
     const existing = state.wardrobe[idx];
-    state.wardrobe[idx] = {
+    const updated  = {
       ...existing,
       name:        String(data.get("name")        || "").trim(),
       color:       String(data.get("color")       || "").trim(),
@@ -410,10 +451,12 @@ export function initWardrobe(state, { onRefine } = {}) {
       category:    String(data.get("category")    || "").trim(),
       rating:      parseFloat(data.get("rating")) || existing.rating,
       description: String(data.get("description") || "").trim(),
-      photo:       editPendingPhoto !== null ? editPendingPhoto : existing.photo
+      photo:       photoUrl
     };
+    state.wardrobe[idx] = updated;
 
     saveWardrobe(state.wardrobe);
+    if (state.currentUser) upsertWardrobeItem(updated, state.currentUser.id); // fire-and-forget
     closeEditModal();
     renderGrid();
   });

@@ -4,7 +4,7 @@ const createId = () =>
 // Bump this key whenever the default wardrobe changes — clears old cached data
 const STORAGE_KEY = "curato_wardrobe_v2";
 
-const DEFAULT_WARDROBE = [
+export const DEFAULT_WARDROBE = [
   {
     id: createId(),
     name: "Pleated Wide Pants",
@@ -195,7 +195,7 @@ export function saveSavedLooks(looks) {
 
 const PROFILE_KEY = "curato_profile_v1";
 
-const DEFAULT_PROFILE = {
+export const DEFAULT_PROFILE = {
   name: "Marco",
   age: "34",
   location: "Toronto",
@@ -221,7 +221,7 @@ export function saveProfile(profile) {
 
 const STYLE_BOARDS_KEY = "curato_style_boards_v1";
 
-const DEFAULT_STYLE_BOARDS = [
+export const DEFAULT_STYLE_BOARDS = [
   {
     id: createId(),
     title: "Continental Ease",
@@ -263,5 +263,6 @@ export const state = {
   profile: loadProfile(),
   styleBoards: loadStyleBoards(),
   activeFilter: "all",
-  anchoredItem: null
+  anchoredItem: null,
+  currentUser: null  // set by main.js after Supabase auth
 };

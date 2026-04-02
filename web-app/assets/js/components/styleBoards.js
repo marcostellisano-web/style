@@ -1,5 +1,6 @@
 import { saveRefineList, saveStyleBoards } from "../state.js";
 import { profilePromptLine } from "./profile.js";
+import { uploadPhoto, upsertStyleBoard, deleteStyleBoard } from "../supabase.js";
 
 const API_KEY_STORE = "curato_claude_key";
 
@@ -126,8 +127,13 @@ export function renderStyleBoards() {
       <form id="style-board-form" class="style-board-form hidden" autocomplete="off">
         <input name="title" placeholder="Board title" />
         <textarea name="description" placeholder="Description — what is the vibe of this board?" rows="2"></textarea>
-        <textarea name="images" placeholder="One path per line — e.g. /style-board-photos/look-1.jpg" required></textarea>
-        <p class="style-board-form-note">Only images from <code>/style-board-photos/</code> are allowed.</p>
+        <label class="sb-upload-label">
+          <input type="file" name="photoFiles" id="sb-photo-files" accept="image/*" multiple class="visually-hidden" />
+          <div class="sb-upload-area" id="sb-upload-area">Upload photos from your device</div>
+        </label>
+        <div id="sb-upload-preview" class="sb-upload-preview hidden"></div>
+        <textarea name="images" placeholder="Or enter existing paths — e.g. /style-board-photos/look-1.jpg" rows="2"></textarea>
+        <p class="style-board-form-note">Upload files above, or reference images from <code>/style-board-photos/</code>.</p>
         <div class="style-board-form-actions">
           <button type="button" id="style-board-cancel">Cancel</button>
           <button type="submit">Create board</button>
@@ -215,8 +221,13 @@ export function initStyleBoards(state, { onSuggest } = {}) {
           <form class="board-edit-form hidden" data-edit-form>
             <input name="title" value="${escapeHtml(board.title)}" placeholder="Board title" required />
             <textarea name="description" rows="2">${escapeHtml(board.description || "")}</textarea>
+            <label class="sb-upload-label">
+              <input type="file" name="photoFiles" accept="image/*" multiple class="visually-hidden sb-edit-files" />
+              <div class="sb-upload-area sb-upload-area--compact">Add more photos</div>
+            </label>
+            <div class="sb-upload-preview hidden sb-edit-preview"></div>
             <textarea name="images" required>${escapeHtml(board.images.join("\n"))}</textarea>
-            <p class="style-board-form-note">Only use paths from <code>/style-board-photos/</code>.</p>
+            <p class="style-board-form-note">Upload new photos above, or edit paths from <code>/style-board-photos/</code>.</p>
             <div class="board-edit-actions">
               <button type="button" data-action="cancel-edit">Cancel</button>
               <button type="submit">Save</button>
@@ -237,13 +248,54 @@ export function initStyleBoards(state, { onSuggest } = {}) {
     form?.classList.add("hidden");
   });
 
-  form?.addEventListener("submit", event => {
+  // Show thumbnail previews when files are selected
+  form?.querySelector("#sb-photo-files")?.addEventListener("change", e => {
+    const files   = Array.from(e.target.files);
+    const preview = form.querySelector("#sb-upload-preview");
+    const area    = form.querySelector("#sb-upload-area");
+    if (!files.length) { preview.classList.add("hidden"); return; }
+    preview.classList.remove("hidden");
+    area.textContent = `${files.length} photo${files.length > 1 ? "s" : ""} selected`;
+    preview.innerHTML = files.map(f =>
+      `<img src="${URL.createObjectURL(f)}" alt="${f.name}" class="sb-preview-thumb" />`
+    ).join("");
+  });
+
+  form?.addEventListener("submit", async event => {
     event.preventDefault();
-    const data = new FormData(form);
-    const images = parseImageList(data.get("images"));
-    if (!images.length) return;
-    if (images.some(path => !isStyleBoardFolderPath(path))) {
+    const data      = new FormData(form);
+    const submitBtn = form.querySelector("[type=submit]");
+
+    // Validate any manually typed paths
+    const typedPaths = parseImageList(data.get("images"));
+    const invalidTyped = typedPaths.filter(p => !isStyleBoardFolderPath(p));
+    if (invalidTyped.length) {
       globalThis.alert?.("Please use only image paths from /style-board-photos/.");
+      return;
+    }
+
+    // Upload selected files to Supabase Storage
+    const files = Array.from(form.querySelector("#sb-photo-files")?.files || []);
+    let uploadedPaths = [];
+    if (files.length) {
+      submitBtn.disabled    = true;
+      submitBtn.textContent = "Uploading…";
+      try {
+        uploadedPaths = await Promise.all(
+          files.map(f => uploadPhoto(f, "style-boards", state.currentUser?.id))
+        );
+      } catch (err) {
+        submitBtn.disabled    = false;
+        submitBtn.textContent = "Create board";
+        globalThis.alert?.(err.message);
+        return;
+      }
+    }
+
+    const images = [...uploadedPaths, ...typedPaths];
+    if (!images.length) {
+      submitBtn.disabled    = false;
+      submitBtn.textContent = "Create board";
       return;
     }
 
@@ -255,9 +307,27 @@ export function initStyleBoards(state, { onSuggest } = {}) {
 
     state.styleBoards.unshift(board);
     saveStyleBoards(state.styleBoards);
+    if (state.currentUser) upsertStyleBoard(board, state.currentUser.id); // fire-and-forget
     form.reset();
     form.classList.add("hidden");
     render();
+  });
+
+  // Show thumbnails when files are selected in an inline edit form
+  grid?.addEventListener("change", event => {
+    const input = event.target;
+    if (!(input instanceof HTMLInputElement) || !input.classList.contains("sb-edit-files")) return;
+    const files   = Array.from(input.files);
+    const form    = input.closest("[data-edit-form]");
+    const preview = form?.querySelector(".sb-edit-preview");
+    const area    = form?.querySelector(".sb-upload-area");
+    if (!preview || !area) return;
+    if (!files.length) { preview.classList.add("hidden"); return; }
+    preview.classList.remove("hidden");
+    area.textContent = `${files.length} photo${files.length > 1 ? "s" : ""} selected`;
+    preview.innerHTML = files.map(f =>
+      `<img src="${URL.createObjectURL(f)}" alt="${f.name}" class="sb-preview-thumb" />`
+    ).join("");
   });
 
   grid?.addEventListener("click", event => {
@@ -276,6 +346,7 @@ export function initStyleBoards(state, { onSuggest } = {}) {
     if (action === "remove") {
       state.styleBoards = state.styleBoards.filter(board => board.id !== boardId);
       saveStyleBoards(state.styleBoards);
+      if (state.currentUser) deleteStyleBoard(boardId); // fire-and-forget
       render();
       return;
     }
@@ -298,22 +369,46 @@ export function initStyleBoards(state, { onSuggest } = {}) {
     if (board) openModal(board);
   });
 
-  grid?.addEventListener("submit", event => {
+  grid?.addEventListener("submit", async event => {
     const formElement = event.target;
     if (!(formElement instanceof HTMLFormElement) || !formElement.matches("[data-edit-form]")) return;
     event.preventDefault();
 
-    const card = formElement.closest(".board-card");
+    const card    = formElement.closest(".board-card");
     const boardId = card?.getAttribute("data-board-id");
     if (!boardId) return;
 
-    const data = new FormData(formElement);
-    const images = parseImageList(data.get("images"));
-    if (!images.length) return;
-    if (images.some(path => !isStyleBoardFolderPath(path))) {
+    const data      = new FormData(formElement);
+    const saveBtn   = formElement.querySelector("[type=submit]");
+
+    // Validate typed paths
+    const typedPaths = parseImageList(data.get("images"));
+    const invalidTyped = typedPaths.filter(p => !isStyleBoardFolderPath(p));
+    if (invalidTyped.length) {
       globalThis.alert?.("Please use only image paths from /style-board-photos/.");
       return;
     }
+
+    // Upload any newly selected files
+    const files = Array.from(formElement.querySelector(".sb-edit-files")?.files || []);
+    let uploadedPaths = [];
+    if (files.length) {
+      saveBtn.disabled    = true;
+      saveBtn.textContent = "Uploading…";
+      try {
+        uploadedPaths = await Promise.all(
+          files.map(f => uploadPhoto(f, "style-boards", state.currentUser?.id))
+        );
+      } catch (err) {
+        saveBtn.disabled    = false;
+        saveBtn.textContent = "Save";
+        globalThis.alert?.(err.message);
+        return;
+      }
+    }
+
+    const images = [...uploadedPaths, ...typedPaths];
+    if (!images.length) return;
 
     const board = state.styleBoards.find(item => item.id === boardId);
     if (!board) return;
@@ -323,6 +418,7 @@ export function initStyleBoards(state, { onSuggest } = {}) {
     board.images      = images;
     board.tags        = deriveKeywords(images);
     saveStyleBoards(state.styleBoards);
+    if (state.currentUser) upsertStyleBoard(board, state.currentUser.id); // fire-and-forget
     render();
   });
 

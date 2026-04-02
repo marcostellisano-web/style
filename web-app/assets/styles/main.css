@@ -2350,3 +2350,165 @@ body.modal-open { overflow: hidden; }
 @media (max-width: 560px) {
   .top-nav-btn { padding: 5px 8px; font-size: 9.5px; }
 }
+
+/* ── Login screen ───────────────────────────────────────────────── */
+.login-screen {
+  min-height: 100vh;
+  background: #0c0b09;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.login-brand {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 36px;
+  font-weight: 400;
+  font-style: italic;
+  letter-spacing: .12em;
+  color: #f0ede8;
+  margin-bottom: 4px;
+}
+
+.login-tagline {
+  font-size: 12px;
+  letter-spacing: .1em;
+  color: rgba(255,255,255,.3);
+  text-transform: uppercase;
+  margin: 0 0 24px;
+}
+
+.login-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.login-input {
+  width: 100%;
+  background: rgba(255,255,255,.06);
+  border: none;
+  border-bottom: 1px solid rgba(255,255,255,.2);
+  color: #f0ede8;
+  font-family: Inter, sans-serif;
+  font-size: 14px;
+  padding: 10px 0;
+  outline: none;
+  transition: border-color .15s;
+}
+
+.login-input::placeholder { color: rgba(255,255,255,.25); }
+.login-input:focus { border-bottom-color: rgba(255,255,255,.55); }
+
+.login-btn {
+  margin-top: 8px;
+  width: 100%;
+  background: #f0ede8;
+  color: #0c0b09;
+  border: none;
+  font-family: Inter, sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  padding: 12px;
+  cursor: pointer;
+  transition: opacity .15s;
+}
+
+.login-btn:hover { opacity: .88; }
+.login-btn:disabled { opacity: .45; cursor: default; }
+
+.login-error {
+  font-size: 12px;
+  color: #f87171;
+  text-align: center;
+  margin: 0;
+}
+
+/* ── Profile: sign out row ───────────────────────────────────────── */
+.profile-account-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 20px;
+  margin-top: 16px;
+  border-top: 1px solid rgba(255,255,255,.1);
+}
+
+.profile-account-email {
+  font-size: 11px;
+  color: rgba(255,255,255,.35);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 200px;
+}
+
+.profile-signout-btn {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 13px;
+  background: transparent;
+  border: none;
+  color: rgba(255,255,255,.4);
+  cursor: pointer;
+  padding: 0;
+  transition: color .15s;
+  flex-shrink: 0;
+}
+
+.profile-signout-btn:hover { color: #fff; }
+
+/* ── Style board: photo upload area ─────────────────────────────── */
+.sb-upload-label { display: block; cursor: pointer; }
+
+.sb-upload-area {
+  border: 1px dashed rgba(0,0,0,.2);
+  border-radius: 4px;
+  padding: 14px 16px;
+  font-size: 12px;
+  color: var(--muted);
+  text-align: center;
+  transition: border-color .15s, color .15s;
+}
+
+.sb-upload-label:hover .sb-upload-area,
+.sb-upload-label:focus-within .sb-upload-area {
+  border-color: rgba(0,0,0,.45);
+  color: var(--ink);
+}
+
+.sb-upload-area--compact { padding: 10px 12px; }
+
+.sb-upload-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.sb-preview-thumb {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 3px;
+  opacity: .85;
+}
+
+/* ── Photo upload error ──────────────────────────────────────────── */
+.photo-upload-error {
+  font-size: 12px;
+  color: #dc2626;
+  margin: 4px 0 0;
+}

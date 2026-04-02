@@ -1,4 +1,6 @@
 import { saveProfile } from "../state.js";
+import { upsertProfile } from "../supabase.js";
+import { handleSignOut } from "../auth.js";
 
 const FIELDS = [
   { key: "name",     label: "Name",      placeholder: "Your name" },
@@ -12,7 +14,7 @@ const FIELDS = [
   { key: "notes",    label: "Vibe / notes", placeholder: "e.g. Italian-Canadian runner" },
 ];
 
-function renderPanel(profile) {
+function renderPanel(profile, userEmail) {
   return `
     <div class="profile-panel-inner">
       <div class="profile-panel-head">
@@ -37,6 +39,10 @@ function renderPanel(profile) {
           <button type="submit">Save</button>
         </div>
       </form>
+      <div class="profile-account-row">
+        <span class="profile-account-email">${userEmail || ""}</span>
+        <button type="button" id="profile-signout" class="profile-signout-btn">Sign out</button>
+      </div>
     </div>
   `;
 }
@@ -47,20 +53,27 @@ export function initProfile(state) {
   if (!trigger || !panel) return;
 
   function open() {
-    panel.innerHTML = renderPanel(state.profile);
+    panel.innerHTML = renderPanel(state.profile, state.currentUser?.email);
     panel.classList.remove("hidden");
     trigger.classList.add("is-active");
 
     document.querySelector("#profile-cancel")?.addEventListener("click", close);
 
-    document.querySelector("#profile-form")?.addEventListener("submit", e => {
+    document.querySelector("#profile-form")?.addEventListener("submit", async e => {
       e.preventDefault();
       const fd = new FormData(e.target);
       FIELDS.forEach(f => { state.profile[f.key] = fd.get(f.key)?.trim() || ""; });
       saveProfile(state.profile);
-      // Update trigger label
+      if (state.currentUser) {
+        upsertProfile(state.profile, state.currentUser.id); // fire-and-forget
+      }
       if (state.profile.name) trigger.textContent = state.profile.name.split(" ")[0];
       close();
+    });
+
+    document.querySelector("#profile-signout")?.addEventListener("click", async () => {
+      close();
+      await handleSignOut();
     });
   }
 
@@ -73,7 +86,6 @@ export function initProfile(state) {
     panel.classList.contains("hidden") ? open() : close();
   });
 
-  // Set trigger label to first name
   if (state.profile.name) trigger.textContent = state.profile.name.split(" ")[0];
 }
 
