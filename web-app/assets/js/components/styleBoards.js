@@ -1,11 +1,13 @@
 import { saveRefineList, saveStyleBoards } from "../state.js";
 import { profilePromptLine } from "./profile.js";
+import { uploadPhoto, supabase } from "../supabase.js";
 
 const API_KEY_STORE = "curato_claude_key";
 
 const STOP_WORDS = new Set([
   "https", "http", "www", "com", "net", "org", "jpg", "jpeg", "png", "webp", "gif",
-  "image", "images", "img", "photo", "photos", "board", "style", "upload", "cdn", "fit", "crop", "auto", "format", "q", "w"
+  "image", "images", "img", "photo", "photos", "board", "style", "upload", "cdn", "fit", "crop", "auto", "format", "q", "w",
+  "storage", "v1", "object", "public", "supabase"
 ]);
 
 const createId = () =>
@@ -40,10 +42,6 @@ function parseImageList(raw) {
     .filter(Boolean);
 }
 
-function isStyleBoardFolderPath(value) {
-  return /^\/style-board-photos\/.+/i.test(value);
-}
-
 function deriveKeywords(images) {
   const frequency = new Map();
   images.forEach(url => {
@@ -55,7 +53,7 @@ function deriveKeywords(images) {
 
     clean
       .split(/\s+/)
-      .filter(word => word.length > 2 && !STOP_WORDS.has(word) && Number.isNaN(Number(word)))
+      .filter(word => word.length > 2 && !STOP_WORDS.has(word) && Number.isNaN(Number(word)) && !/^[0-9a-f]{8,}$/.test(word))
       .forEach(word => frequency.set(word, (frequency.get(word) || 0) + 1));
   });
 
@@ -126,8 +124,12 @@ export function renderStyleBoards() {
       <form id="style-board-form" class="style-board-form hidden" autocomplete="off">
         <input name="title" placeholder="Board title" />
         <textarea name="description" placeholder="Description — what is the vibe of this board?" rows="2"></textarea>
-        <textarea name="images" placeholder="One path per line — e.g. /style-board-photos/look-1.jpg" required></textarea>
-        <p class="style-board-form-note">Only images from <code>/style-board-photos/</code> are allowed.</p>
+        <div class="board-upload-zone" id="board-upload-zone">
+          <input type="file" id="board-photo-input" accept="image/*" multiple />
+          <label for="board-photo-input" class="board-upload-label">Click to choose photos</label>
+          <div id="board-upload-preview" class="board-upload-preview"></div>
+        </div>
+        <p id="board-upload-status" class="board-upload-status"></p>
         <div class="style-board-form-actions">
           <button type="button" id="style-board-cancel">Cancel</button>
           <button type="submit">Create board</button>
@@ -215,8 +217,11 @@ export function initStyleBoards(state, { onSuggest } = {}) {
           <form class="board-edit-form hidden" data-edit-form>
             <input name="title" value="${escapeHtml(board.title)}" placeholder="Board title" required />
             <textarea name="description" rows="2">${escapeHtml(board.description || "")}</textarea>
-            <textarea name="images" required>${escapeHtml(board.images.join("\n"))}</textarea>
-            <p class="style-board-form-note">Only use paths from <code>/style-board-photos/</code>.</p>
+            <textarea name="images">${escapeHtml(board.images.join("\n"))}</textarea>
+            <label class="board-edit-upload">
+              <input type="file" class="board-edit-photo-input" accept="image/*" multiple />
+              <span class="board-edit-upload-label">+ Upload more photos</span>
+            </label>
             <div class="board-edit-actions">
               <button type="button" data-action="cancel-edit">Cancel</button>
               <button type="submit">Save</button>
@@ -237,27 +242,72 @@ export function initStyleBoards(state, { onSuggest } = {}) {
     form?.classList.add("hidden");
   });
 
-  form?.addEventListener("submit", event => {
+  // Wire up file preview for the create form
+  const photoInput  = document.querySelector("#board-photo-input");
+  const previewEl   = document.querySelector("#board-upload-preview");
+  const uploadZone  = document.querySelector("#board-upload-zone");
+
+  photoInput?.addEventListener("change", () => {
+    const files = [...(photoInput.files ?? [])];
+    if (previewEl) {
+      previewEl.innerHTML = files.map(f => {
+        const url = URL.createObjectURL(f);
+        return `<img src="${url}" alt="${escapeHtml(f.name)}" class="board-upload-thumb" />`;
+      }).join("");
+    }
+    uploadZone?.classList.toggle("is-active", files.length > 0);
+  });
+
+  form?.addEventListener("submit", async event => {
     event.preventDefault();
-    const data = new FormData(form);
-    const images = parseImageList(data.get("images"));
-    if (!images.length) return;
-    if (images.some(path => !isStyleBoardFolderPath(path))) {
-      globalThis.alert?.("Please use only image paths from /style-board-photos/.");
+    const statusEl  = document.querySelector("#board-upload-status");
+    const submitBtn = form.querySelector('[type="submit"]');
+    const files     = [...(photoInput?.files ?? [])];
+
+    if (!files.length) {
+      if (statusEl) statusEl.textContent = "Please choose at least one photo.";
       return;
     }
 
-    const board = buildBoard({
-      title:       String(data.get("title") || "").trim(),
-      description: String(data.get("description") || "").trim(),
-      images
-    });
+    submitBtn.disabled    = true;
+    submitBtn.textContent = "Uploading…";
+    if (statusEl) statusEl.textContent = `Uploading ${files.length} photo${files.length > 1 ? "s" : ""}…`;
 
-    state.styleBoards.unshift(board);
-    saveStyleBoards(state.styleBoards);
-    form.reset();
-    form.classList.add("hidden");
-    render();
+    try {
+      const { data: authData } = await supabase.auth.getUser();
+      if (!authData?.user) {
+        if (statusEl) statusEl.textContent = "Sign in to upload photos.";
+        submitBtn.disabled    = false;
+        submitBtn.textContent = "Create board";
+        return;
+      }
+
+      const images = [];
+      for (const file of files) {
+        const url = await uploadPhoto(file, "style-boards", authData.user.id);
+        images.push(url);
+      }
+
+      const data  = new FormData(form);
+      const board = buildBoard({
+        title:       String(data.get("title") || "").trim(),
+        description: String(data.get("description") || "").trim(),
+        images
+      });
+
+      state.styleBoards.unshift(board);
+      saveStyleBoards(state.styleBoards);
+      form.reset();
+      if (previewEl) previewEl.innerHTML = "";
+      if (statusEl)  statusEl.textContent = "";
+      uploadZone?.classList.remove("is-active");
+      form.classList.add("hidden");
+      render();
+    } catch (err) {
+      if (statusEl) statusEl.textContent = err.message || "Upload failed.";
+      submitBtn.disabled    = false;
+      submitBtn.textContent = "Create board";
+    }
   });
 
   grid?.addEventListener("click", event => {
@@ -298,7 +348,7 @@ export function initStyleBoards(state, { onSuggest } = {}) {
     if (board) openModal(board);
   });
 
-  grid?.addEventListener("submit", event => {
+  grid?.addEventListener("submit", async event => {
     const formElement = event.target;
     if (!(formElement instanceof HTMLFormElement) || !formElement.matches("[data-edit-form]")) return;
     event.preventDefault();
@@ -307,13 +357,35 @@ export function initStyleBoards(state, { onSuggest } = {}) {
     const boardId = card?.getAttribute("data-board-id");
     if (!boardId) return;
 
-    const data = new FormData(formElement);
-    const images = parseImageList(data.get("images"));
-    if (!images.length) return;
-    if (images.some(path => !isStyleBoardFolderPath(path))) {
-      globalThis.alert?.("Please use only image paths from /style-board-photos/.");
-      return;
+    const data           = new FormData(formElement);
+    const existingImages = parseImageList(data.get("images"));
+    const editPhotoInput = formElement.querySelector(".board-edit-photo-input");
+    const newFiles       = [...(editPhotoInput?.files ?? [])];
+    const saveBtn        = formElement.querySelector('[type="submit"]');
+
+    let uploadedImages = [];
+    if (newFiles.length) {
+      if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = "Uploading…"; }
+      try {
+        const { data: authData } = await supabase.auth.getUser();
+        if (!authData?.user) {
+          globalThis.alert?.("Sign in to upload photos.");
+          if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = "Save"; }
+          return;
+        }
+        for (const file of newFiles) {
+          const url = await uploadPhoto(file, "style-boards", authData.user.id);
+          uploadedImages.push(url);
+        }
+      } catch (err) {
+        globalThis.alert?.(err.message || "Upload failed.");
+        if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = "Save"; }
+        return;
+      }
     }
+
+    const images = [...existingImages, ...uploadedImages];
+    if (!images.length) return;
 
     const board = state.styleBoards.find(item => item.id === boardId);
     if (!board) return;

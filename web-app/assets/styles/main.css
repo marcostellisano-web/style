@@ -1301,6 +1301,60 @@ select { cursor: pointer; }
   padding-bottom: 1px;
 }
 
+/* ── Board photo upload ─────────────────────────────────────────── */
+.board-upload-zone {
+  border: 1px dashed var(--line);
+  padding: 24px 16px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color .18s;
+}
+.board-upload-zone:hover,
+.board-upload-zone.is-active { border-color: var(--ink); }
+.board-upload-zone input[type="file"] { display: none; }
+.board-upload-label {
+  display: block;
+  font-family: "Cormorant Garamond", serif;
+  font-size: 14px;
+  font-style: italic;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color .18s;
+}
+.board-upload-zone:hover .board-upload-label,
+.board-upload-zone.is-active .board-upload-label { color: var(--ink); }
+.board-upload-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+  justify-content: center;
+}
+.board-upload-thumb {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+}
+.board-upload-status {
+  font-size: 12px;
+  font-style: italic;
+  color: var(--muted);
+  text-align: center;
+  min-height: 18px;
+}
+
+.board-edit-upload { display: block; margin-top: 4px; }
+.board-edit-upload input[type="file"] { display: none; }
+.board-edit-upload-label {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 13px;
+  font-style: italic;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color .18s;
+}
+.board-edit-upload-label:hover { color: var(--ink); }
+
 /* ── Boards grid ────────────────────────────────────────────────── */
 .style-boards-grid {
   display: grid;
