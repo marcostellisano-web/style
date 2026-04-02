@@ -263,6 +263,5 @@ export const state = {
   profile: loadProfile(),
   styleBoards: loadStyleBoards(),
   activeFilter: "all",
-  anchoredItem: null,
-  currentUser: null  // set by main.js after Supabase auth
+  anchoredItem: null
 };
