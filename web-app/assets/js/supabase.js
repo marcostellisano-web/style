@@ -69,14 +69,14 @@ async function resizeImage(file, maxPx = 1200) {
  * Returns the full public URL (can be used directly as <img src>).
  * @param {File} file
  * @param {"wardrobe"|"style-boards"} folder
- * @param {string} userId
+ * @param {string} [userId] — omit for anonymous uploads (style-boards only)
  */
 export async function uploadPhoto(file, folder, userId) {
   const ext  = file.name.split(".").pop().toLowerCase() || "jpg";
   const base = file.name.slice(0, file.name.lastIndexOf("."))
     .toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60);
   const filename    = `${base}-${Date.now()}-${Math.random().toString(16).slice(2, 6)}.${ext}`;
-  const storagePath = `${userId}/${folder}/${filename}`;
+  const storagePath = userId ? `${userId}/${folder}/${filename}` : `${folder}/${filename}`;
 
   const resized = await resizeImage(file);
 

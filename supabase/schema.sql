@@ -93,6 +93,7 @@ create policy "users manage own looks"
 insert into storage.buckets (id, name, public) values ('photos', 'photos', true)
   on conflict (id) do nothing;
 
+-- Authenticated users can upload to their own subfolder (wardrobe photos etc.)
 create policy "authenticated users upload to own folder"
   on storage.objects for insert
   to authenticated
@@ -107,4 +108,14 @@ create policy "authenticated users delete own files"
   using (
     bucket_id = 'photos'
     and auth.uid()::text = (storage.foldername(name))[1]
+  );
+
+-- Anonymous uploads to style-boards/ only (no login required)
+-- Run this if you want photo uploads to work without authentication:
+create policy "anon upload to style-boards folder"
+  on storage.objects for insert
+  to anon
+  with check (
+    bucket_id = 'photos'
+    and (storage.foldername(name))[1] = 'style-boards'
   );
