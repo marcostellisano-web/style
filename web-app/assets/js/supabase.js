@@ -24,13 +24,6 @@ export async function signOut() {
   return supabase.auth.signOut();
 }
 
-export async function signInWithGoogle() {
-  return supabase.auth.signInWithOAuth({
-    provider: "google",
-    options: { redirectTo: window.location.origin }
-  });
-}
-
 export async function updatePassword(password) {
   return supabase.auth.updateUser({ password });
 }
