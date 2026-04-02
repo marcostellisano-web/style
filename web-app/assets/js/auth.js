@@ -7,12 +7,26 @@ const GOOGLE_ICON = `<svg width="18" height="18" viewBox="0 0 18 18" xmlns="http
   <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
 </svg>`;
 
+function friendlyError(err) {
+  if (!err) return "";
+  const msg = err.message ?? "";
+  if (msg.includes("provider is not enabled") || msg.includes("Unsupported provider"))
+    return "Google sign-in isn't enabled yet. Use email/password below, or enable Google in your Supabase dashboard → Authentication → Providers.";
+  if (msg.includes("Invalid login credentials"))
+    return "Incorrect email or password.";
+  if (msg.includes("Email not confirmed"))
+    return "Please confirm your email before signing in.";
+  return msg;
+}
+
 export function renderLoginScreen() {
   return `
     <div class="login-screen">
       <div class="login-card">
         <div class="login-brand">Modo</div>
         <p class="login-tagline">Your wardrobe, considered.</p>
+
+        <p id="login-error" class="login-error hidden"></p>
 
         <button type="button" id="google-signin-btn" class="google-btn">
           ${GOOGLE_ICON}
@@ -39,7 +53,6 @@ export function renderLoginScreen() {
             autocomplete="current-password"
           />
           <button type="submit" class="login-btn">Sign in with email</button>
-          <p id="login-error" class="login-error hidden"></p>
         </form>
       </div>
     </div>
@@ -47,23 +60,29 @@ export function renderLoginScreen() {
 }
 
 export function initLoginForm() {
-  const form    = document.querySelector("#login-form");
-  const error   = document.querySelector("#login-error");
+  const form      = document.querySelector("#login-form");
+  const errorEl   = document.querySelector("#login-error");
   const googleBtn = document.querySelector("#google-signin-btn");
 
+  function showError(msg) {
+    if (!errorEl) return;
+    errorEl.textContent = msg;
+    errorEl.classList.toggle("hidden", !msg);
+  }
+
   googleBtn?.addEventListener("click", async () => {
+    showError("");
     googleBtn.disabled = true;
     googleBtn.querySelector("span").textContent = "Redirecting…";
-    const { error: oauthError } = await signInWithGoogle();
-    if (oauthError) {
+
+    const { error } = await signInWithGoogle();
+
+    if (error) {
       googleBtn.disabled = false;
       googleBtn.querySelector("span").textContent = "Continue with Google";
-      if (error) {
-        error.textContent = oauthError.message;
-        error.classList.remove("hidden");
-      }
+      showError(friendlyError(error));
     }
-    // On success: browser redirects to Google → back to app → onAuthChange fires
+    // On success: browser redirects to Google → returns → onAuthChange fires
   });
 
   if (!form) return;
@@ -75,16 +94,15 @@ export function initLoginForm() {
     if (!email || !password) return;
 
     const submitBtn = form.querySelector("[type=submit]");
-    submitBtn.disabled = true;
+    showError("");
+    submitBtn.disabled    = true;
     submitBtn.textContent = "Signing in…";
-    error.classList.add("hidden");
 
-    const { error: authError } = await signIn(email, password);
+    const { error } = await signIn(email, password);
 
-    if (authError) {
-      error.textContent = authError.message;
-      error.classList.remove("hidden");
-      submitBtn.disabled = false;
+    if (error) {
+      showError(friendlyError(error));
+      submitBtn.disabled    = false;
       submitBtn.textContent = "Sign in with email";
     }
   });
