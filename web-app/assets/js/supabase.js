@@ -1,22 +1,11 @@
 /**
  * Supabase client + all DB/storage helpers.
- *
- * SETUP:
- *   1. Create a free project at supabase.com
- *   2. Replace SUPABASE_URL and SUPABASE_ANON_KEY below
- *   3. Run the SQL in /supabase/schema.sql in your project's SQL editor
- *   4. Create a Storage bucket named "photos" and set it to PUBLIC
- *   5. In Supabase → Authentication → Providers, enable Email
- *   6. Invite your 2–5 users via Supabase → Authentication → Users → "Invite user"
- *      (optionally disable public signups in Auth → Settings)
+ * Credentials are injected at build time via build.js → env.js.
+ * See /supabase/schema.sql to set up your database.
  */
 
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
-
-// ── Replace these two values with your Supabase project credentials ──
-const SUPABASE_URL      = "https://YOUR_PROJECT_ID.supabase.co";
-const SUPABASE_ANON_KEY = "YOUR_ANON_KEY";
-// ────────────────────────────────────────────────────────────────────
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./env.js";
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -33,6 +22,13 @@ export async function signIn(email, password) {
 
 export async function signOut() {
   return supabase.auth.signOut();
+}
+
+export async function signInWithGoogle() {
+  return supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: { redirectTo: window.location.origin }
+  });
 }
 
 export function onAuthChange(callback) {
