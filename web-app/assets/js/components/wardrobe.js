@@ -312,7 +312,7 @@ export function initWardrobe(state, { onRefine } = {}) {
   const editColorPkr = document.querySelector("#edit-color-picker");
   const editColorName= document.querySelector("#edit-color-name");
 
-  let editPendingPhoto = null; // null = unchanged, string = new data URL
+  let editPendingPhoto = null; // null = unchanged, string = new data URL or path
 
   function openEditModal(item) {
     editPendingPhoto = null;

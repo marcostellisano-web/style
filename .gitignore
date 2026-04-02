@@ -1,0 +1,10 @@
+# Generated at Vercel build time — never commit real credentials
+web-app/assets/js/env.js
+
+# Python
+__pycache__/
+*.py[cod]
+.env
+
+# macOS
+.DS_Store

@@ -1,0 +1,37 @@
+name: Generate Style Board Image Descriptions
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "style-board-photos/**"
+
+jobs:
+  describe:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Anthropic SDK
+        run: npm install @anthropic-ai/sdk
+
+      - name: Generate descriptions
+        run: node .github/scripts/generate-descriptions.js
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+      - name: Commit updated descriptions
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add web-app/assets/data/board-image-descriptions.json
+          git diff --cached --quiet || git commit -m "chore: update style board image descriptions"
+          git push

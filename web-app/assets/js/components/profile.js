@@ -58,7 +58,6 @@ export function initProfile(state) {
       const fd = new FormData(e.target);
       FIELDS.forEach(f => { state.profile[f.key] = fd.get(f.key)?.trim() || ""; });
       saveProfile(state.profile);
-      // Update trigger label
       if (state.profile.name) trigger.textContent = state.profile.name.split(" ")[0];
       close();
     });
@@ -73,7 +72,6 @@ export function initProfile(state) {
     panel.classList.contains("hidden") ? open() : close();
   });
 
-  // Set trigger label to first name
   if (state.profile.name) trigger.textContent = state.profile.name.split(" ")[0];
 }
 
