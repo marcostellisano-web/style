@@ -7,6 +7,10 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./env.js";
 
+// Capture BEFORE createClient runs — Supabase clears the hash asynchronously
+// during initialisation, so by the time onAuthStateChange fires it's already gone.
+export const isInviteFlow = window.location.hash.includes("type=invite");
+
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // Public storage URL for a given path inside the "photos" bucket

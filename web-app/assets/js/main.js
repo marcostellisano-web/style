@@ -7,7 +7,7 @@ import { renderSavedLooks, initSavedLooks } from "./components/savedLooks.js";
 import { renderShoppingList, initShoppingList } from "./components/shoppingList.js";
 import { renderFooter } from "./components/footer.js";
 import { initProfile } from "./components/profile.js";
-import { loadUserData, seedDefaultData } from "./supabase.js";
+import { loadUserData, seedDefaultData, isInviteFlow } from "./supabase.js";
 import {
   renderLoginScreen, initLoginForm, initAuth,
   renderSetPasswordScreen, initSetPasswordForm
@@ -27,7 +27,7 @@ initAuth(
 
     // Invite flow: Supabase sets type=invite in the URL hash.
     // Show a set-password screen before loading the main app.
-    if (window.location.hash.includes("type=invite")) {
+    if (isInviteFlow) {
       app.innerHTML = renderSetPasswordScreen();
       initSetPasswordForm(() => loadApp(user));
       return;
