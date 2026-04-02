@@ -1,6 +1,5 @@
 import { saveRefineList, saveStyleBoards } from "../state.js";
 import { profilePromptLine } from "./profile.js";
-import { uploadPhoto, supabase } from "../supabase.js";
 
 const API_KEY_STORE = "curato_claude_key";
 
@@ -40,6 +39,25 @@ function parseImageList(raw) {
     .split(/[\n,]/)
     .map(item => item.trim())
     .filter(Boolean);
+}
+
+function resizeToDataUrl(file, maxPx = 800) {
+  return new Promise(resolve => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      let { naturalWidth: w, naturalHeight: h } = img;
+      const scale = w > maxPx || h > maxPx ? Math.min(maxPx / w, maxPx / h) : 1;
+      const canvas = document.createElement("canvas");
+      canvas.width  = Math.round(w * scale);
+      canvas.height = Math.round(h * scale);
+      canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+      resolve(canvas.toDataURL("image/jpeg", 0.72));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
+    img.src = url;
+  });
 }
 
 function deriveKeywords(images) {
@@ -270,44 +288,39 @@ export function initStyleBoards(state, { onSuggest } = {}) {
     }
 
     submitBtn.disabled    = true;
-    submitBtn.textContent = "Uploading…";
-    if (statusEl) statusEl.textContent = `Uploading ${files.length} photo${files.length > 1 ? "s" : ""}…`;
+    submitBtn.textContent = "Processing…";
+    if (statusEl) statusEl.textContent = `Processing ${files.length} photo${files.length > 1 ? "s" : ""}…`;
 
-    try {
-      const { data: authData } = await supabase.auth.getUser();
-      if (!authData?.user) {
-        if (statusEl) statusEl.textContent = "Sign in to upload photos.";
-        submitBtn.disabled    = false;
-        submitBtn.textContent = "Create board";
-        return;
-      }
+    const images = [];
+    for (const file of files) {
+      const dataUrl = await resizeToDataUrl(file);
+      if (dataUrl) images.push(dataUrl);
+    }
 
-      const images = [];
-      for (const file of files) {
-        const url = await uploadPhoto(file, "style-boards", authData.user.id);
-        images.push(url);
-      }
-
-      const data  = new FormData(form);
-      const board = buildBoard({
-        title:       String(data.get("title") || "").trim(),
-        description: String(data.get("description") || "").trim(),
-        images
-      });
-
-      state.styleBoards.unshift(board);
-      saveStyleBoards(state.styleBoards);
-      form.reset();
-      if (previewEl) previewEl.innerHTML = "";
-      if (statusEl)  statusEl.textContent = "";
-      uploadZone?.classList.remove("is-active");
-      form.classList.add("hidden");
-      render();
-    } catch (err) {
-      if (statusEl) statusEl.textContent = err.message || "Upload failed.";
+    if (!images.length) {
+      if (statusEl) statusEl.textContent = "Could not read photos — please try again.";
       submitBtn.disabled    = false;
       submitBtn.textContent = "Create board";
+      return;
     }
+
+    const data  = new FormData(form);
+    const board = buildBoard({
+      title:       String(data.get("title") || "").trim(),
+      description: String(data.get("description") || "").trim(),
+      images
+    });
+
+    state.styleBoards.unshift(board);
+    saveStyleBoards(state.styleBoards);
+    form.reset();
+    if (previewEl) previewEl.innerHTML = "";
+    if (statusEl)  statusEl.textContent = "";
+    uploadZone?.classList.remove("is-active");
+    form.classList.add("hidden");
+    render();
+    submitBtn.disabled    = false;
+    submitBtn.textContent = "Create board";
   });
 
   grid?.addEventListener("click", event => {
@@ -363,24 +376,12 @@ export function initStyleBoards(state, { onSuggest } = {}) {
     const newFiles       = [...(editPhotoInput?.files ?? [])];
     const saveBtn        = formElement.querySelector('[type="submit"]');
 
-    let uploadedImages = [];
+    const uploadedImages = [];
     if (newFiles.length) {
-      if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = "Uploading…"; }
-      try {
-        const { data: authData } = await supabase.auth.getUser();
-        if (!authData?.user) {
-          globalThis.alert?.("Sign in to upload photos.");
-          if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = "Save"; }
-          return;
-        }
-        for (const file of newFiles) {
-          const url = await uploadPhoto(file, "style-boards", authData.user.id);
-          uploadedImages.push(url);
-        }
-      } catch (err) {
-        globalThis.alert?.(err.message || "Upload failed.");
-        if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = "Save"; }
-        return;
+      if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = "Processing…"; }
+      for (const file of newFiles) {
+        const dataUrl = await resizeToDataUrl(file);
+        if (dataUrl) uploadedImages.push(dataUrl);
       }
     }
 
@@ -395,6 +396,7 @@ export function initStyleBoards(state, { onSuggest } = {}) {
     board.images      = images;
     board.tags        = deriveKeywords(images);
     saveStyleBoards(state.styleBoards);
+    if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = "Save"; }
     render();
   });
 
